@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--
+loggedin: bool
+user: {name:text, email:text, id:integer}
+-->
+<html lang="en">
+    <head>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/n3.3.5/js/bootstrap.min.js"></script>
+
+        <style>
+        .vcenter {
+            display: inline-block;
+            vertical-align: middle;
+            float: none;
+        }
+        </style>
+
+        <title>
+            <% if @loggedin %>
+                Timeline of <%= @user["name"] %>
+            <% else %>
+                Nano Twitter
+            <% end %>
+        </title>
+    </head>
+
+    <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">NanoTwitter</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <% if @loggedin %>
+                <p class="navbar-text navbar-right">Signed in as
+                    <a href="/user/<%= @logged_in_user["id"] %>" class="navbar-link"><%= @logged_in_user["name"] %></a>
+                    &nbsp;&nbsp;&nbsp;
+                    <a href="/logout" class="navbar-link">Sign out</a>
+                </p>
+            <% else %>
+              <form class="navbar-form navbar-right" action="/login" method="post">
+                <div class="form-group">
+                  <input type="text" placeholder="Email" class="form-control" name="email">
+                </div>
+                <div class="form-group">
+                  <input type="password" placeholder="Password" class="form-control" name="password">
+                </div>
+                <button type="submit" class="btn btn-success">Sign in</button>
+              </form>
+            <% end %>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron" style="padding-bottom: 30px;">
+      <% if @user %>
+      <div class="container">
+      <div class="row" style="margin-top: 10px;">
+          <div class="col-sm-4"></div>
+          <div class="col-sm-2 vcenter">
+              <img src="<%= @user[:avatar] %>" class="img-rounded" style="width: 90px">
+          </div>
+          <div class="col-sm-2 vcenter" style="text-align: center;">
+              <h4><%= @user["name"] %></h4>
+              <% if !@loggedin || @isHome%>
+              <% elsif @isFollowed %>
+                <button class="btn btn-success">Unfollow</button>
+              <% else %>
+                <button class="btn btn-success">Follow</button>
+              <% end %>
+          </div>
+          <div class="col-sm-4"></div>
+      </div>
+      <% if @isHome %>
+      <div class="row" style="margin-top: 20px;">
+          <div class="col-sm-3"></div>
+          <div class="col-sm-6">
+              <form action="/user/<%= @user["id"] %>/tweet" method="post">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="" name="tweet">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="submit">Tweet</button>
+                </span>
+              </div>
+              <form>
+          </div>
+          <div class="col-sm-3"></div>
+      </div>
+      <% end %>
+      </div>
+      <% else %>
+      <div class="container">
+        <h1>Hello!</h1>
+        <p>This is nano twitter</p>
+        <a class="btn btn-primary btn-lg" href="/user/register" role="button">Register</a>
+      </div>
+      <% end %>
+    </div>
+
+    <div class="container">
+    <% @tweets.each do |tweet| %>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+              <a href="/user/<%= tweet["user"]["id"] %>" class="navbar-link"><%= tweet["user"]["name"] %></a>
+              <!--
+              <button class="btn btn-default pull-right" style="margin-top: -7px;">follow</button>
+              -->
+          </div>
+          <div class="panel-body">
+            <%= tweet["content"] %>
+            <br>
+            <h5><small><%= tweet["created"] %></small></h5>
+          </div>
+        </div>
+    <% end %>
+    </div> <!-- /container -->
+
+
+
+    </body>
+
+
+</html>
