@@ -1,6 +1,53 @@
 NanoTwitter TEAMAB
 =======
 
+Routes
+------
+`/`  
+If not logged in, then display top 50 tweets of all users, else redirect to `/user/:logged_in_user_id`
+
+`/user/:id`  
+The home page of user, displaying Top 50 tweets of followed users and himself
+
+`/login/:id`  
+log in the user with user_id, may accept requests with password parameter to log in
+
+`/logout`  
+log out the current user, after logging out redirect to `/`
+
+`/user/register`  
+display register page
+
+`/login`  
+display the login page, after logging in redirect to `/user/:id`
+
+`/test/reset`  
+delete all rows containing test user in relations table, delete all tweets send by test users, delete all test users
+
+`/test/seed/:n`  
+create n fake users
+
+`/test/tweets/:n`  
+user “testuser” generates n new fake tweets
+
+`/test/follow/:n`  
+randomly select n users to follow user “testuser”
+
+`/test/users`  
+diaplay all the fake users
+
+`/tweets/:id`  
+return the tweet with given id
+
+`/users/:id`  
+return the information for user with given id
+
+`/tweets/recent`  
+return the recent k tweets, where k is a constance
+
+`/users/:id/tweets`  
+return the recent k tweets of a user of given id
+
 API
 ---
 
