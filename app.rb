@@ -7,6 +7,7 @@ require './models/User'
 require './models/Tweet'
 require './models/Relation'
 require 'date'
+require './libs/seeds'
 
 set :bind, '0.0.0.0'
 set :port, 4567
@@ -21,9 +22,8 @@ get '/' do
     if @loggedin then
         redirect to("/user/#{id}")
     else
-        @tweets = Tweet.order(created: :desc).limit(50)
-        @tweets.to_a.map!{|tweet| tweet.attributes }
-                    .each{|tweet| tweet["user"] = User.find_by(id: tweet["sender_id"]).attributes}
+        sql = "SELECT * FROM tweets INNER JOIN users ON tweets.sender_id=users.id ORDER BY tweets.created DESC LIMIT 50"
+        @tweets = ActiveRecord::Base.connection.execute(sql)
         erb :user
     end
 end
@@ -57,18 +57,16 @@ get '/user/:id' do
     end
     #TODO catch not found case
     @user = User.find_by(id: id)
-    #user_id = @user[:id]
-    #sql = "SELECT tweets.* FROM tweets INNER JOIN relations ON tweets.sender_id=relations.followee_id WHERE follower_id=#{user_id} OR sender_id=#{user_id} ORDER BY tweets.created DESC LIMIT 50"
-    #@tweets = ActiveRecord::Base.connection.execute(sql)
-    #@tweets = @tweets.to_a.each{|tweet| tweet["user"] = User.find_by(id: tweet["sender_id"]).attributes}
-    @tweets = Tweet.where(sender_id: id).order(created: :desc).limit(50)
-    @tweets.to_a.map!{|tweet| tweet.attributes }
-                .each{|tweet| tweet["user"] = @user.attributes}
+    if (@user.nil?) then return status 404; end
+    user_id = @user[:id]
+    sql = "SELECT * FROM users, (SELECT DISTINCT tweets.* FROM tweets LEFT JOIN relations ON tweets.sender_id=relations.followee_id WHERE follower_id=#{user_id} OR sender_id=#{user_id} ORDER BY tweets.created DESC LIMIT 50) as tweets where tweets.sender_id = users.id"
+    @tweets = ActiveRecord::Base.connection.execute(sql)
     erb :user
 end
 
 #display the login page, after logging in redirect to /user/:id
 get '/login' do
+    redirect to("/")
 end
 
 post '/user/:id/tweet' do
@@ -96,6 +94,9 @@ end
 
 #log in the user with user_id, may accept requests with password parameter to log in
 get '/login/:id' do
+    id = params['id'].to_i
+    session[:user_id] = id
+    redirect to("/users/#{id}")
 end
 
 #log out the current user, after logging out redirect to /
@@ -104,30 +105,57 @@ get '/logout' do
     redirect to("/")
 end
 
+#follow the user of given id
+post '/users/:id/follow' do
+    followee_id = params['id'].to_i
+    follower_id = session[:user_id]
+    if (follower_id.nil?) then
+        return status 403
+    end
+    Relation.find_or_create_by(followee_id: followee_id, follower_id: follower_id)
+    return status 200
+end
+
+#unfollow the user of given id
+post '/users/:id/unfollow' do
+    followee_id = params['id'].to_i
+    follower_id = session[:user_id]
+    if (follower_id.nil?) then
+        return status 403
+    end
+    Relation.where(followee_id: followee_id, follower_id: follower_id).delete_all
+    return status 200
+end
+
 #delete all rows containing test user in relations table, delete all tweets send by test users, delete all test users
 get '/test/reset' do
     User.destroy_all
-    User.create(name: 'test', email: 'test@test.com', password: 'test', avatar: Faker::Avatar.image)
+    Seeds.generateTestUser
     return "done"
 end
 
 #create n fake users
 get '/test/seed/:n' do
     n = params['n'].to_i
-    (0..n).each do |t|
-        User.create(name: Faker::Name.name, email: Faker::Internet.email, password: Faker::Internet.password, avatar: Faker::Avatar.image)
-    end
+    Seeds.generateUsers(n)
     return "done"
 end
 
-#user “testuser” generates n new fake tweets
+#each user generates n tweets
 get '/test/tweets/:n' do
     n = params['n'].to_i
-    user = User.find_by(name: 'test')
-    if (user == nil) then return; end
-    Faker::Lorem.sentences(n).each do |sentence|
-        Tweet.create(sender_id: user[:id], content: sentence, created: DateTime.now)
-    end
+    Seeds.generateTweets(n: n)
+    #user = User.find_by(name: 'test')
+    #if (user == nil) then return; end
+    #redirect to("/test/users/#{user[:id]}/tweets/#{n}")
+    return "done"
+end
+
+#let user of given id generate n tweets
+get '/test/users/:id/tweets/:n' do
+    n = params['n'].to_i
+    user_id = params['id'].to_i
+    Seeds.generateTweets(sender_id: user_id, n: n)
     return "done"
 end
 
@@ -135,9 +163,7 @@ end
 get '/test/follow/:n' do
     n = params['n'].to_i
     test_user = User.find_by(name: 'test')
-    User.where("name != 'test'").order("RANDOM()").limit(n).each do |user|
-        Relation.create(followee_id: test_user[:id], follower_id: user[:id])
-    end
+    Seeds.generateRelations(followee_id: test_user[:id], n: n)
     return "done"
 end
 
@@ -145,9 +171,7 @@ end
 get '/test/users/:id/follow/:n' do
     id = params['id'].to_i
     n = params['n'].to_i
-    User.where("id != #{id}").order("RANDOM()").limit(n).each do |user|
-        Relation.create(followee_id: user[:id], follower_id: id)
-    end
+    Seeds.generateRelations(follower_id: id, n: n)
     return "done"
 end
 

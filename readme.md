@@ -1,6 +1,10 @@
 NanoTwitter TEAMAB
 =======
 
+require ruby 2.+
+Run rake db:reset to clear the database and reseed.
+The development database comes with a user(email=test@test.com, password=test).
+
 Routes
 ------
 `/`  
@@ -35,18 +39,6 @@ randomly select n users to follow user “testuser”
 
 `/test/users`  
 diaplay all the fake users
-
-`/tweets/:id`  
-return the tweet with given id
-
-`/users/:id`  
-return the information for user with given id
-
-`/tweets/recent`  
-return the recent k tweets, where k is a constance
-
-`/users/:id/tweets`  
-return the recent k tweets of a user of given id
 
 API
 ---

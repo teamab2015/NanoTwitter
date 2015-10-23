@@ -114,7 +114,7 @@ user: {name:text, email:text, id:integer}
     <% @tweets.each do |tweet| %>
         <div class="panel panel-default">
           <div class="panel-heading">
-              <a href="/user/<%= tweet["user"]["id"] %>" class="navbar-link"><%= tweet["user"]["name"] %></a>
+              <a href="/user/<%= tweet["sender_id"] %>" class="navbar-link"><%= tweet["name"] %></a>
               <!--
               <button class="btn btn-default pull-right" style="margin-top: -7px;">follow</button>
               -->

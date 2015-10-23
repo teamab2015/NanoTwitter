@@ -45,6 +45,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   faker
+  json
   pg
   rake
   sinatra

@@ -11,21 +11,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151015235632) do
-
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+ActiveRecord::Schema.define(version: 20151023063453) do
 
   create_table "relations", force: :cascade do |t|
     t.integer "followee_id"
     t.integer "follower_id"
   end
 
+  add_index "relations", ["followee_id"], name: "index_relations_on_followee_id"
+  add_index "relations", ["follower_id"], name: "index_relations_on_follower_id"
+
   create_table "tweets", force: :cascade do |t|
-    t.text    "content"
-    t.date    "created"
-    t.integer "sender_id"
+    t.text     "content"
+    t.datetime "created"
+    t.integer  "sender_id"
   end
+
+  add_index "tweets", ["created"], name: "index_tweets_on_created"
+  add_index "tweets", ["sender_id"], name: "index_tweets_on_sender_id"
 
   create_table "users", force: :cascade do |t|
     t.string "name"
@@ -33,5 +36,7 @@ ActiveRecord::Schema.define(version: 20151015235632) do
     t.string "password"
     t.string "avatar"
   end
+
+  add_index "users", ["email"], name: "index_users_on_email"
 
 end
