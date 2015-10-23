@@ -106,7 +106,7 @@ get '/logout' do
 end
 
 #follow the user of given id
-post '/users/:id/follow' do
+post '/user/:id/follow' do
     followee_id = params['id'].to_i
     follower_id = session[:user_id]
     if (follower_id.nil?) then
@@ -117,7 +117,7 @@ post '/users/:id/follow' do
 end
 
 #unfollow the user of given id
-post '/users/:id/unfollow' do
+post '/user/:id/unfollow' do
     followee_id = params['id'].to_i
     follower_id = session[:user_id]
     if (follower_id.nil?) then

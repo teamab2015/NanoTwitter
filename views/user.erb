@@ -5,6 +5,8 @@ user: {name:text, email:text, id:integer}
 -->
 <html lang="en">
     <head>
+        <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <!-- Optional theme -->
@@ -77,9 +79,9 @@ user: {name:text, email:text, id:integer}
               <h4><%= @user["name"] %></h4>
               <% if !@loggedin || @isHome%>
               <% elsif @isFollowed %>
-                <button class="btn btn-success">Unfollow</button>
+                <button class="btn btn-success" id="follow_button">Unfollow</button>
               <% else %>
-                <button class="btn btn-success">Follow</button>
+                <button class="btn btn-success" id="follow_button">Follow</button>
               <% end %>
           </div>
           <div class="col-sm-4"></div>
@@ -127,6 +129,27 @@ user: {name:text, email:text, id:integer}
         </div>
     <% end %>
     </div> <!-- /container -->
+
+    <script>
+    function setFollowRelation(element, follow) {
+        element.disabled = true;
+        element.innerHTML = "<span class='glyphicon glyphicon-refresh glyphicon-refresh-animate'></span>";
+        var action = follow ? "follow" : "unfollow";
+        var url = window.location.href + '/' + action;
+        $.post(url, function() {
+            console.log("success");
+            element.innerHTML = follow ? "Unfollow" : "Follow";
+        }).always(function() {
+            element.disabled = false;
+        });
+    }
+    $("#follow_button").click(function() {
+        console.log("click");
+        console.log($(this));
+        console.log($(this).innerHTML=="Follow");
+        setFollowRelation($(this)[0], $(this)[0].innerHTML=="Follow");
+    });
+    </script>
 
 
 

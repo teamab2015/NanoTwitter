@@ -1,9 +1,9 @@
 NanoTwitter TEAMAB
 =======
 
-require ruby 2.+
-Run rake db:reset to clear the database and reseed.
-The development database comes with a user(email=test@test.com, password=test).
+require ruby 2.+  
+Run rake db:reset to clear the database and reseed.  
+The development database comes with a user(email=test@test.com, password=test).  
 
 Routes
 ------
