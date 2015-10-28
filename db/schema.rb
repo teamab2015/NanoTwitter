@@ -11,7 +11,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151023063453) do
+ActiveRecord::Schema.define(version: 20151028161744) do
+
+  create_table "mentions", force: :cascade do |t|
+    t.integer "tweet_id"
+    t.integer "user_id"
+  end
 
   create_table "relations", force: :cascade do |t|
     t.integer "followee_id"
@@ -20,6 +25,15 @@ ActiveRecord::Schema.define(version: 20151023063453) do
 
   add_index "relations", ["followee_id"], name: "index_relations_on_followee_id"
   add_index "relations", ["follower_id"], name: "index_relations_on_follower_id"
+
+  create_table "tag_ownerships", force: :cascade do |t|
+    t.integer "tag_id"
+    t.integer "tweet_id"
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.string "word"
+  end
 
   create_table "tweets", force: :cascade do |t|
     t.text     "content"
