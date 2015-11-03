@@ -1,0 +1,32 @@
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">NanoTwitter</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+        <% if @logged_in_user %>
+            <p class="navbar-text navbar-right">Signed in as
+                <a href="/user/<%= @logged_in_user["id"] %>" class="navbar-link"><%= @logged_in_user["name"] %></a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="/logout" class="navbar-link">Sign out</a>
+            </p>
+        <% else %>
+          <form class="navbar-form navbar-right" action="/login" method="post">
+            <div class="form-group">
+              <input type="text" placeholder="Email" class="form-control" name="email">
+            </div>
+            <div class="form-group">
+              <input type="password" placeholder="Password" class="form-control" name="password">
+            </div>
+            <button type="submit" class="btn btn-success">Sign in</button>
+          </form>
+        <% end %>
+    </div><!--/.navbar-collapse -->
+  </div>
+</nav>

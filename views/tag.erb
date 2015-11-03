@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--
+loggedin: bool
+user: {name:text, email:text, id:integer}
+-->
+<html lang="en">
+    <%= erb :head %>
+    <body>
+    <%= erb :nav %>
+
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron" style="padding-bottom: 30px;">
+      <div class="container">
+        <h3>Tag: <%= @tag.word %></h3>
+      </div>
+    </div>
+
+    <%= erb :tweets_list %>
+    <%= erb :setup_js %>
+
+    </body>
+
+
+</html>

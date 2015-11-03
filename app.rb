@@ -57,13 +57,23 @@ end
 #The home page of user, displaying Top 50 tweets of followed users and himself
 get '/user/:id' do
     @logged_in_user = Authentication.get_logged_in_user(session, params)
-    if (@logged_in_user.nil?) then redirect to("/logout"); end
+    #if (@logged_in_user.nil?) then redirect to("/logout"); end
     @user = User.find_by(id: params['id'].to_i)
     if (@user.nil?) then return status 404; end
-    @isFollowed = Relation.find_by(followee_id: @user.id, follower_id: @logged_in_user.id) != nil
-    @isHome = @logged_in_user.id == @user.id
+    if @logged_in_user != nil then
+        @isFollowed = Relation.find_by(followee_id: @user.id, follower_id: @logged_in_user.id) != nil
+        @isHome = @logged_in_user.id == @user.id
+    end
     @tweets = Tweet.getTimeline(@user.id)
     erb :user
+end
+
+get '/tags/:id' do
+    id = params['id'].to_i
+    @tag = Tag.find_by(id: id)
+    sql = "SELECT * FROM users, (SELECT DISTINCT tweets.* FROM tweets INNER JOIN tag_ownerships ON tweets.id=tag_ownerships.tweet_id WHERE tag_ownerships.tag_id = #{id} ORDER BY tweets.created DESC LIMIT 50) as tweets where tweets.sender_id = users.id"
+    @tweets = ActiveRecord::Base.connection.execute(sql)
+    erb :tag
 end
 
 #notification api

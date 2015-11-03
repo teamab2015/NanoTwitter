@@ -1,0 +1,17 @@
+<div class="container">
+<% @tweets.each do |tweet| %>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+          <a href="/user/<%= tweet["sender_id"] %>" class="navbar-link"><%= tweet["name"] %> @<%= tweet["username"] %></a>
+          <!--
+          <button class="btn btn-default pull-right" style="margin-top: -7px;">follow</button>
+          -->
+      </div>
+      <div class="panel-body">
+        <%= tweet["content"] %>
+        <br>
+        <h5><small><%= tweet["created"] %></small></h5>
+      </div>
+    </div>
+<% end %>
+</div> <!-- /container -->
