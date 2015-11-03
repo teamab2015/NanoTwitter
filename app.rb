@@ -27,7 +27,7 @@ set :session_secret, 'jsadjfajhdfjhaliuwhwreknsdfnuasjhdfguqyq34jhrfmcb'
 #If not logged in, then display top 50 tweets of all users, else redirect to /user/:logged_in_user_id
 get '/' do
     puts session['id']
-    logged_in_user_id = Authentication.get_logged_in_user_id(session, params)
+    logged_in_user_id = Authentication.get_logged_in_user_id(session)
     if logged_in_user_id != nil then
         redirect to("/user/#{logged_in_user_id}")
     else
@@ -56,7 +56,7 @@ end
 
 #The home page of user, displaying Top 50 tweets of followed users and himself
 get '/user/:id' do
-    @logged_in_user = Authentication.get_logged_in_user(session, params)
+    @logged_in_user = Authentication.get_logged_in_user(session)
     #if (@logged_in_user.nil?) then redirect to("/logout"); end
     @user = User.find_by(id: params['id'].to_i)
     if (@user.nil?) then return status 404; end
@@ -78,12 +78,26 @@ end
 
 #notification api
 get '/user/:id/notifications' do
-    logged_in_user_id = Authentication.get_logged_in_user_id(session, params)
+    logged_in_user_id = Authentication.get_logged_in_user_id(session)
     if (logged_in_user_id.nil?) then return status 404; end
     content_type :json
-    Notification.where(user_id: id, has_read: false).order(created: :desc).to_json
+    Notification.where(user_id: logged_in_user_id, has_read: false).order(created: :desc).to_json
 end
 
+get '/user/:id/retweet/:tweet_id' do
+    sender_id = params['id'].to_i
+    tweet_id = params['tweet_id'].to_i
+    if Authentication.has_user_privilege?(session, sender_id) then
+        tweet = Tweet.find_by(id: tweet_id);
+        if tweet.nil? then
+            return status 403
+        end
+        Tweet.add(sender_id, tweet['content'], nil)
+        redirect to("/user/#{sender_id}")
+    else
+        return status 403
+    end
+end
 
 #display the login page, after logging in redirect to /user/:id
 get '/login' do
@@ -92,31 +106,10 @@ end
 
 post '/user/:id/tweet' do
     sender_id = params['id'].to_i
-    if (session[:user_id] != nil && session[:user_id] == sender_id) then
+    if Authentication.has_user_privilege?(session, sender_id) then
         tweet_content = params[:tweet]
-        tweet = Tweet.create(sender_id: sender_id, content: tweet_content, created: DateTime.now)
-
-        mentions = tweet_content.scan(/@\w+/)
-        tags = tweet_content.scan(/#\w+/)
-        tags.map!{ |raw_tag| Tag.find_or_create_by(word: raw_tag[1..-1]) }
-            .select{ |x| !x.nil?}
-            .each{ |tag| Tag_ownership.find_or_create_by(tag_id: tag.id, tweet_id: tweet.id) }
-        tags.select{ |x| !x.nil?}
-            .each{ |tag| tweet_content.sub!('#'+tag.word, "<a class='tag_link' href='/tags/#{tag.id}'>#{'#'+tag.word}</a>") }
-        mentions.map!{ |raw_mention| User.find_by(username: raw_mention[1..-1]) }
-            .select{ |x| !x.nil?}
-            .each{ |user| Mention.find_or_create_by(tweet_id: tweet.id, user_id: user.id)}
-        mentions.select{ |x| !x.nil?}
-                .each{ |user| tweet_content.sub!('@'+user.username, "<a class='mention_link' href='/user/#{user.id}'>#{'@'+user.username}</a>") }
-        puts tweet_content
-        Tweet.update(tweet.id, content: tweet_content)
         reply_index = params[:reply_index]
-        if reply_index != nil && Reply.check_index(reply_index) then
-            Reply.find_or_create_by(reply_index: reply_index, tweet_id: tweet.id)
-        end
-        if mentions[0] != nil && tweet_content.start_with?('@' + mentions[0].username) then
-            Notification.notifyReply(mentions[0], tweet)
-        end
+        Tweet.add(sender_id, tweet_content, reply_index)
         redirect to("/user/#{sender_id}")
     else
         return status 403

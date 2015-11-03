@@ -17,4 +17,20 @@ $("#follow_button").click(function() {
     console.log($(this).innerHTML=="Follow");
     setFollowRelation($(this)[0], $(this)[0].innerHTML=="Follow");
 });
+
+function updateNotificationList(notifications) {
+    $("#notification_badge")[0].innerHTML = notifications.length;
+}
+function getUnreadNotification() {
+    $("#notification_badge")[0].innerHTML = "...";
+    var url = window.location.href + '/notifications';
+    $.get(url, function(data) {
+        updateNotificationList(data);
+    }).always(function() {
+        console.log("end");
+    });
+}
+function clearNotification(id) {
+
+}
 </script>

@@ -2,7 +2,7 @@
 <% @tweets.each do |tweet| %>
     <div class="panel panel-default">
       <div class="panel-heading">
-          <a href="/user/<%= tweet["sender_id"] %>" class="navbar-link"><%= tweet["name"] %> @<%= tweet["username"] %></a>
+          <a href="/user/<%= tweet["sender_id"] %>" class="navbar-link"><%= tweet["name"] %></a>
           <!--
           <button class="btn btn-default pull-right" style="margin-top: -7px;">follow</button>
           -->
@@ -11,6 +11,11 @@
         <%= tweet["content"] %>
         <br>
         <h5><small><%= tweet["created"] %></small></h5>
+        <% if @logged_in_user && tweet["sender_id"] != @logged_in_user["id"] %>
+            <a href="/user/<%= @user["id"] %>/retweet/<%= tweet["id"] %>">retweet</a>
+            &nbsp;&nbsp;
+            <a>reply @<%= tweet["username"] %></a>
+        <% end %>
       </div>
     </div>
 <% end %>
