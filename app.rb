@@ -109,6 +109,8 @@ post '/user/:id/tweet' do
     if Authentication.has_user_privilege?(session, sender_id) then
         tweet_content = params[:tweet]
         reply_index = params[:reply_index]
+        tweet_prefix = params[:tweet_prefix]
+        tweet_content = tweet_prefix + tweet_content if tweet_prefix != nil
         Tweet.add(sender_id, tweet_content, reply_index)
         redirect to("/user/#{sender_id}")
     else
