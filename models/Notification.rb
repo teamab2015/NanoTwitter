@@ -11,5 +11,8 @@ class Notification < ActiveRecord::Base
         self.notify(user.id, content)
     end
 
-
+    def self.getUnread(user_id)
+        return Notification.where(user_id: user_id, has_read: false).order(created: :desc)
+    end
+    
 end

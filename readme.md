@@ -1,5 +1,6 @@
 NanoTwitter TEAMAB
 =======
+[ ![Codeship Status for cheng9393/NanoTwitter](https://codeship.com/projects/202aa180-5fb8-0133-eeaa-4e587625a674/status?branch=master)](https://codeship.com/projects/111898)
 
 require ruby 2.+  
 Run rake db:reset to clear the database and reseed.  
