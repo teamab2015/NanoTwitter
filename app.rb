@@ -81,7 +81,7 @@ get '/user/:id/notifications' do
     logged_in_user_id = Authentication.get_logged_in_user_id(session)
     if (logged_in_user_id.nil?) then return status 404; end
     content_type :json
-    Notification.where(user_id: logged_in_user_id, has_read: false).order(created: :desc).to_json
+    Notification.getUnread(logged_in_user_id).to_json
 end
 
 get '/user/:id/retweet/:tweet_id' do
@@ -134,7 +134,7 @@ end
 get '/login/:id' do
     id = params['id'].to_i
     session[:user_id] = id
-    redirect to("/users/#{id}")
+    redirect to("/user/#{id}")
 end
 
 #log out the current user, after logging out redirect to /
@@ -248,4 +248,10 @@ get '/users/:id/tweets' do
     k = 50
     content_type :json
     Tweet.where(sender_id: id).order(created: :desc).limit(k).to_json
+end
+
+get '/users/:id/timeline' do
+    id = params['id'].to_i
+    content_type :json
+    Tweet.getTimeline(id).to_json
 end

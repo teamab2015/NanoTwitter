@@ -36,11 +36,6 @@ class Tweet < ActiveRecord::Base
         end
     end
 
-    def self.getRecent
-        sql = "SELECT * FROM tweets INNER JOIN users ON tweets.sender_id=users.id ORDER BY tweets.created DESC LIMIT 50"
-        return self.connection.execute(sql)
-    end
-
     def self.getTimeline(*args)
         user_id = args[0]
         if user_id.nil? then

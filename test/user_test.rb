@@ -1,7 +1,6 @@
 require_relative './test_helper.rb'
-require_relative '../models/User'
 
-class MyTest < MiniTest::Unit::TestCase
+class MyUserTest < Minitest::Test
 
   include Rack::Test::Methods
 
