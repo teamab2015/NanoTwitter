@@ -8,7 +8,7 @@ module Seeds
   DAY = 86400
 
   def self.generateTestUser
-      user = User.create(name: 'test', email: 'test@test.com', password: 'test', avatar: Faker::Avatar.image)
+      user = User.create(name: 'test', username: 'test', email: 'test@test.com', password: 'test', avatar: Faker::Avatar.image)
       return user.id
   end
 
@@ -16,6 +16,7 @@ module Seeds
       (0..n).each do |t|
           user = User.find_or_create_by(email: Faker::Internet.email)
           user.name = Faker::Name.name
+          user.username = Faker::Internet.user_name
           user.password = Faker::Internet.password
           user.avatar = Faker::Avatar.image
           user.save

@@ -6,8 +6,17 @@ require 'json'
 require './models/User'
 require './models/Tweet'
 require './models/Relation'
+require './models/Tag'
+require './models/Tag_ownership'
+require './models/Notification'
+require './models/Mention'
+require './models/Reply'
+require './models/Tweet'
+require './models/User'
 require 'date'
 require './libs/seeds'
+require './libs/authentication'
+require './libs/helper'
 
 set :bind, '0.0.0.0'
 set :port, 4567
@@ -17,13 +26,12 @@ set :session_secret, 'jsadjfajhdfjhaliuwhwreknsdfnuasjhdfguqyq34jhrfmcb'
 
 #If not logged in, then display top 50 tweets of all users, else redirect to /user/:logged_in_user_id
 get '/' do
-    id = session[:user_id]
-    @loggedin = id != nil
-    if @loggedin then
-        redirect to("/user/#{id}")
+    puts session['id']
+    logged_in_user_id = Authentication.get_logged_in_user_id(session)
+    if logged_in_user_id != nil then
+        redirect to("/user/#{logged_in_user_id}")
     else
-        sql = "SELECT * FROM tweets INNER JOIN users ON tweets.sender_id=users.id ORDER BY tweets.created DESC LIMIT 50"
-        @tweets = ActiveRecord::Base.connection.execute(sql)
+        @tweets = Tweet.getTimeline
         erb :user
     end
 end
@@ -34,34 +42,61 @@ get '/user/register' do
 end
 
 post '/user/register' do
-    name = params[:name]
-    email = params[:email]
-    password = params[:password]
-    if (User.find_by(email: email) != nil) then
-        redirect to("/user/register")
-    else
-        User.create(name: name, email: email, password: password, avatar: Faker::Avatar.image)
+    begin
+        User.register(name: params[:name],
+                      email: params[:email],
+                      password: params[:password],
+                      username: params[:username])
         redirect to("/")
+    rescue => error
+        @error_message = error.message
+        erb :register
     end
 end
 
 #The home page of user, displaying Top 50 tweets of followed users and himself
 get '/user/:id' do
-    id = params['id'].to_i
-    logged_in_user_id = session[:user_id]
-    @isHome = logged_in_user_id == id
-    @loggedin = logged_in_user_id != nil
-    if (@loggedin) then
-        @logged_in_user = User.find_by(id: logged_in_user_id).attributes
-        @isFollowed = Relation.find_by(followee_id: id, follower_id: logged_in_user_id) != nil
-    end
-    #TODO catch not found case
-    @user = User.find_by(id: id)
+    @logged_in_user = Authentication.get_logged_in_user(session)
+    #if (@logged_in_user.nil?) then redirect to("/logout"); end
+    @user = User.find_by(id: params['id'].to_i)
     if (@user.nil?) then return status 404; end
-    user_id = @user[:id]
-    sql = "SELECT * FROM users, (SELECT DISTINCT tweets.* FROM tweets LEFT JOIN relations ON tweets.sender_id=relations.followee_id WHERE follower_id=#{user_id} OR sender_id=#{user_id} ORDER BY tweets.created DESC LIMIT 50) as tweets where tweets.sender_id = users.id"
-    @tweets = ActiveRecord::Base.connection.execute(sql)
+    if @logged_in_user != nil then
+        @isFollowed = Relation.find_by(followee_id: @user.id, follower_id: @logged_in_user.id) != nil
+        @isHome = @logged_in_user.id == @user.id
+    end
+    @tweets = Tweet.getTimeline(@user.id)
     erb :user
+end
+
+get '/tags/:id' do
+    id = params['id'].to_i
+    @tag = Tag.find_by(id: id)
+    sql = "SELECT * FROM users, (SELECT DISTINCT tweets.* FROM tweets INNER JOIN tag_ownerships ON tweets.id=tag_ownerships.tweet_id WHERE tag_ownerships.tag_id = #{id} ORDER BY tweets.created DESC LIMIT 50) as tweets where tweets.sender_id = users.id"
+    @tweets = ActiveRecord::Base.connection.execute(sql)
+    erb :tag
+end
+
+#notification api
+get '/user/:id/notifications' do
+    logged_in_user_id = Authentication.get_logged_in_user_id(session)
+    if (logged_in_user_id.nil?) then return status 404; end
+    content_type :json
+    Notification.where(user_id: logged_in_user_id, has_read: false).order(created: :desc).to_json
+end
+
+get '/user/:id/retweet/:tweet_id' do
+    sender_id = params['id'].to_i
+    tweet_id = params['tweet_id'].to_i
+    if Authentication.has_user_privilege?(session, sender_id) then
+        tweet = Tweet.find_by(id: tweet_id);
+        if tweet.nil? then
+            return status 403
+        end
+        Tweet.add(sender_id, tweet['content'], nil)
+        redirect to("/user/#{sender_id}")
+    else
+        return status 403
+    end
 end
 
 #display the login page, after logging in redirect to /user/:id
@@ -71,9 +106,12 @@ end
 
 post '/user/:id/tweet' do
     sender_id = params['id'].to_i
-    if (session[:user_id] != nil && session[:user_id] == sender_id) then
-        tweet = params[:tweet]
-        Tweet.create(sender_id: sender_id, content: tweet, created: DateTime.now)
+    if Authentication.has_user_privilege?(session, sender_id) then
+        tweet_content = params[:tweet]
+        reply_index = params[:reply_index]
+        tweet_prefix = params[:tweet_prefix]
+        tweet_content = tweet_prefix + tweet_content if tweet_prefix != nil
+        Tweet.add(sender_id, tweet_content, reply_index)
         redirect to("/user/#{sender_id}")
     else
         return status 403

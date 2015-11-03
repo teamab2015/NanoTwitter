@@ -1,0 +1,40 @@
+<div class="container">
+<% @tweets.each do |tweet| %>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+          <a href="/user/<%= tweet["sender_id"] %>" class="navbar-link"><%= tweet["name"] %></a>
+          <!--
+          <button class="btn btn-default pull-right" style="margin-top: -7px;">follow</button>
+          -->
+      </div>
+      <div class="panel-body">
+        <%= tweet["content"] %>
+        <br>
+        <h5><small><%= tweet["created"] %></small></h5>
+        <% if @logged_in_user && tweet["sender_id"] != @logged_in_user["id"] %>
+            <a href="/user/<%= @user["id"] %>/retweet/<%= tweet["id"] %>">retweet</a>
+            &nbsp;&nbsp;
+            <a data-toggle="collapse" data-target="#reply_panel_<%= tweet["id"] %>" aria-expanded="false" aria-controls="reply_panel_<%= tweet["id"] %>">reply @<%= tweet["username"] %></a>
+            <br><br>
+            <div class="collapse" id="reply_panel_<%= tweet["id"] %>">
+                <form action="/user/<%= @user["id"] %>/tweet" method="post" id="reply_form_<%= tweet["id"] %>">
+                <div class="input-group">
+                  <input type="text" class="form-control" value="<%= tweet["id"] %>" name="reply_index" style="display: none;">
+                  <input type="text" class="form-control" value="@<%= tweet["username"] %> " name="tweet_prefix" style="display: none;">
+                  <span class="input-group-addon">@<%= tweet["username"] %></span>
+                  <input type="text" class="form-control" name="tweet">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit" form="reply_form_<%= tweet["id"] %>">Reply</button>
+                  </span>
+                </div>
+                </form>
+                <!--
+                <div class="well" style="background: rgba(0, 0, 0, 0.01);">
+                </div>
+                -->
+            </div>
+        <% end %>
+      </div>
+    </div>
+<% end %>
+</div> <!-- /container -->
