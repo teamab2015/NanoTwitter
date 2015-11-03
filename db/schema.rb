@@ -11,12 +11,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151028161744) do
+ActiveRecord::Schema.define(version: 20151030204901) do
 
   create_table "mentions", force: :cascade do |t|
     t.integer "tweet_id"
     t.integer "user_id"
   end
+
+  add_index "mentions", ["tweet_id"], name: "index_mentions_on_tweet_id"
+  add_index "mentions", ["user_id"], name: "index_mentions_on_user_id"
+
+  create_table "notifications", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "content"
+    t.boolean  "has_read"
+    t.datetime "created"
+  end
+
+  add_index "notifications", ["created"], name: "index_notifications_on_created"
+  add_index "notifications", ["user_id"], name: "index_notifications_on_user_id"
 
   create_table "relations", force: :cascade do |t|
     t.integer "followee_id"
@@ -26,14 +39,27 @@ ActiveRecord::Schema.define(version: 20151028161744) do
   add_index "relations", ["followee_id"], name: "index_relations_on_followee_id"
   add_index "relations", ["follower_id"], name: "index_relations_on_follower_id"
 
+  create_table "replies", force: :cascade do |t|
+    t.string  "reply_index"
+    t.integer "tweet_id"
+  end
+
+  add_index "replies", ["reply_index"], name: "index_replies_on_reply_index"
+  add_index "replies", ["tweet_id"], name: "index_replies_on_tweet_id"
+
   create_table "tag_ownerships", force: :cascade do |t|
     t.integer "tag_id"
     t.integer "tweet_id"
   end
 
+  add_index "tag_ownerships", ["tag_id"], name: "index_tag_ownerships_on_tag_id"
+  add_index "tag_ownerships", ["tweet_id"], name: "index_tag_ownerships_on_tweet_id"
+
   create_table "tags", force: :cascade do |t|
     t.string "word"
   end
+
+  add_index "tags", ["word"], name: "index_tags_on_word"
 
   create_table "tweets", force: :cascade do |t|
     t.text     "content"
@@ -49,6 +75,7 @@ ActiveRecord::Schema.define(version: 20151028161744) do
     t.string "email"
     t.string "password"
     t.string "avatar"
+    t.string "username"
   end
 
   add_index "users", ["email"], name: "index_users_on_email"

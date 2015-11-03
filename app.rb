@@ -6,8 +6,15 @@ require 'json'
 require './models/User'
 require './models/Tweet'
 require './models/Relation'
+require './models/Tag'
+require './models/Tag_ownership'
+require './models/Notification'
+require './models/Reply'
+require './models/Tweet'
+require './models/User'
 require 'date'
 require './libs/seeds'
+require './libs/authentication'
 
 set :bind, '0.0.0.0'
 set :port, 4567
@@ -17,6 +24,7 @@ set :session_secret, 'jsadjfajhdfjhaliuwhwreknsdfnuasjhdfguqyq34jhrfmcb'
 
 #If not logged in, then display top 50 tweets of all users, else redirect to /user/:logged_in_user_id
 get '/' do
+    Authentication.logged_in?
     id = session[:user_id]
     @loggedin = id != nil
     if @loggedin then
@@ -72,12 +80,38 @@ end
 post '/user/:id/tweet' do
     sender_id = params['id'].to_i
     if (session[:user_id] != nil && session[:user_id] == sender_id) then
-        tweet = params[:tweet]
-        Tweet.create(sender_id: sender_id, content: tweet, created: DateTime.now)
+        tweet_content = params[:tweet]
+        tweet = Tweet.create(sender_id: sender_id, content: tweet_content, created: DateTime.now)
+
+        mentions = tweet_content.scan(/@\w+/)
+        tags = tweet_content.scan(/#\w+/)
+        tags.map!{ |tag| Tag.find_or_create_by(word: tweet[1..-1]) }
+            .select{ |x| !x.nil?}
+            .each{ |tag| Tag_ownership.find_or_create_by(tag_id: tag.id, tweet_id: tweet.id)}
+        mentions.map!{ |mention| User.find_by(username: mention[1..-1]) }
+            .select{ |x| !x.nil?}
+            .each{ |user| Mention.find_or_create_by(tweet_id: tweet.id, user_id: user.id)}
+        reply_index = params[:reply_index]
+        if reply_index != nil && Reply.check_index(reply_index) then
+            Reply.find_or_create_by(reply_index: reply_index, tweet_id: tweet.id)
+        end
+        if mentions[0] != nil && tweet_content.start_with?('@' + mentions[0].username) then
+            notifyReply(mentions[0], tweet)
+        end
         redirect to("/user/#{sender_id}")
     else
         return status 403
     end
+end
+
+def notifyReply(user, tweet)
+    sender = User.find(id: tweet.sender)
+    content = "Reply from #{sender.name} - #{tweet.content}"
+    notify(user.id, content)
+end
+
+def notify(user_id, content)
+    Notification.create(user_id: mentions[0].id, content: content, has_read: false, created: DateTime.now)
 end
 
 post '/login' do

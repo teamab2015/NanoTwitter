@@ -4,4 +4,5 @@ class Tweet < ActiveRecord::Base
     has_many :mentions
     has_many :tags, through: :tag_ownerships
     has_many :users, through: :mentions
+    has_many :replies
 end

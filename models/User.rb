@@ -4,4 +4,5 @@ class User < ActiveRecord::Base
     has_many :mentions
     has_many :users, through: :relations
     has_many :tweets, through: :mentions
+    has_many :notifications
 end
