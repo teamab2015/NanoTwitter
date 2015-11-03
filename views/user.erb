@@ -23,7 +23,7 @@ user: {name:text, email:text, id:integer}
         </style>
 
         <title>
-            <% if @loggedin %>
+            <% if @user %>
                 Timeline of <%= @user["name"] %>
             <% else %>
                 Nano Twitter
@@ -45,7 +45,7 @@ user: {name:text, email:text, id:integer}
           <a class="navbar-brand" href="/">NanoTwitter</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-            <% if @loggedin %>
+            <% if @logged_in_user %>
                 <p class="navbar-text navbar-right">Signed in as
                     <a href="/user/<%= @logged_in_user["id"] %>" class="navbar-link"><%= @logged_in_user["name"] %></a>
                     &nbsp;&nbsp;&nbsp;
@@ -76,7 +76,7 @@ user: {name:text, email:text, id:integer}
               <img src="<%= @user[:avatar] %>" class="img-rounded" style="width: 90px">
           </div>
           <div class="col-sm-2 vcenter" style="text-align: center;">
-              <h4><%= @user["name"] %></h4>
+              <h4><%= @user["name"] %> @<%= @user["username"] %></h4>
               <% if !@loggedin || @isHome%>
               <% elsif @isFollowed %>
                 <button class="btn btn-success" id="follow_button">Unfollow</button>
@@ -116,7 +116,7 @@ user: {name:text, email:text, id:integer}
     <% @tweets.each do |tweet| %>
         <div class="panel panel-default">
           <div class="panel-heading">
-              <a href="/user/<%= tweet["sender_id"] %>" class="navbar-link"><%= tweet["name"] %></a>
+              <a href="/user/<%= tweet["sender_id"] %>" class="navbar-link"><%= tweet["name"] %> @<%= tweet["username"] %></a>
               <!--
               <button class="btn btn-default pull-right" style="margin-top: -7px;">follow</button>
               -->
