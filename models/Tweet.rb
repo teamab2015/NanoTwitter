@@ -1,9 +1,6 @@
 require_relative './Mention'
-require_relative './Notification'
 require_relative './Reply'
 require_relative './Tag'
-require_relative './Tag_ownership'
-require_relative './User'
 
 class Tweet < ActiveRecord::Base
     belongs_to :users
@@ -15,24 +12,11 @@ class Tweet < ActiveRecord::Base
 
     def self.add(sender_id, tweet_content, reply_index)
         tweet = Tweet.create(sender_id: sender_id, content: tweet_content, created: DateTime.now)
-        mentions = tweet_content.scan(/@\w+/)
-        tags = tweet_content.scan(/#\w+/)
-        tags.map!{ |raw_tag| Tag.find_or_create_by(word: raw_tag[1..-1]) }
-            .select{ |x| !x.nil?}
-            .each{ |tag| Tag_ownership.find_or_create_by(tag_id: tag.id, tweet_id: tweet.id) }
-        tags.select{ |x| !x.nil?}
-            .each{ |tag| tweet_content.sub!('#'+tag.word, "<a class='tag_link' href='/tags/#{tag.id}'>#{'#'+tag.word}</a>") }
-        mentions.map!{ |raw_mention| User.find_by(username: raw_mention[1..-1]) }
-            .select{ |x| !x.nil?}
-            .each{ |user| Mention.find_or_create_by(tweet_id: tweet.id, user_id: user.id)}
-        mentions.select{ |x| !x.nil?}
-                .each{ |user| tweet_content.sub!('@'+user.username, "<a class='mention_link' href='/user/#{user.id}'>#{'@'+user.username}</a>") }
         Tweet.update(tweet.id, content: tweet_content)
+        tweet_content = Tag.processTweet(tweet)
+        tweet_content = Mention.processTweet(tweet)
         if reply_index != nil && Reply.check_index(reply_index) then
             Reply.find_or_create_by(reply_index: reply_index, tweet_id: tweet.id)
-        end
-        if mentions[0] != nil && tweet_content.start_with?('@' + mentions[0].username) then
-            Notification.notifyReply(mentions[0], tweet)
         end
     end
 
