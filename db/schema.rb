@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151030204901) do
+ActiveRecord::Schema.define(version: 20151108021833) do
 
   create_table "mentions", force: :cascade do |t|
     t.integer "tweet_id"
@@ -39,14 +39,6 @@ ActiveRecord::Schema.define(version: 20151030204901) do
   add_index "relations", ["followee_id"], name: "index_relations_on_followee_id"
   add_index "relations", ["follower_id"], name: "index_relations_on_follower_id"
 
-  create_table "replies", force: :cascade do |t|
-    t.string  "reply_index"
-    t.integer "tweet_id"
-  end
-
-  add_index "replies", ["reply_index"], name: "index_replies_on_reply_index"
-  add_index "replies", ["tweet_id"], name: "index_replies_on_tweet_id"
-
   create_table "tag_ownerships", force: :cascade do |t|
     t.integer "tag_id"
     t.integer "tweet_id"
@@ -65,6 +57,7 @@ ActiveRecord::Schema.define(version: 20151030204901) do
     t.text     "content"
     t.datetime "created"
     t.integer  "sender_id"
+    t.string   "reply_index"
   end
 
   add_index "tweets", ["created"], name: "index_tweets_on_created"

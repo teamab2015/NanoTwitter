@@ -10,7 +10,6 @@ require './models/Tag'
 require './models/Tag_ownership'
 require './models/Notification'
 require './models/Mention'
-require './models/Reply'
 require './models/Tweet'
 require './models/User'
 require 'date'
@@ -31,7 +30,7 @@ get '/' do
     if logged_in_user_id != nil then
         redirect to("/user/#{logged_in_user_id}")
     else
-        @tweets = Tweet.getTimeline
+        @tweets = Tweet.getTimeline({})
         erb :user
     end
 end
@@ -64,7 +63,7 @@ get '/user/:id' do
         @isFollowed = Relation.find_by(followee_id: @user.id, follower_id: @logged_in_user.id) != nil
         @isHome = @logged_in_user.id == @user.id
     end
-    @tweets = Tweet.getTimeline(@user.id)
+    @tweets = Tweet.getTimeline(user_id: @user.id)
     erb :user
 end
 
@@ -253,5 +252,5 @@ end
 get '/users/:id/timeline' do
     id = params['id'].to_i
     content_type :json
-    Tweet.getTimeline(id).to_json
+    Tweet.getTimeline(user_id: id).to_json
 end

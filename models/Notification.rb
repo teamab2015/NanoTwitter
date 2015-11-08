@@ -6,7 +6,7 @@ class Notification < ActiveRecord::Base
     end
 
     def self.notifyReply(user, tweet)
-        sender = User.find(id: tweet.sender)
+        sender = User.find_by(id: tweet.sender_id)
         content = "Reply from #{sender.name} - #{tweet.content}"
         self.notify(user.id, content)
     end
@@ -14,5 +14,5 @@ class Notification < ActiveRecord::Base
     def self.getUnread(user_id)
         return Notification.where(user_id: user_id, has_read: false).order(created: :desc)
     end
-    
+
 end
