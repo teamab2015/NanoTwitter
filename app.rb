@@ -83,16 +83,16 @@ get '/user/:id/notifications' do
     Notification.getUnread(logged_in_user_id).to_json
 end
 
-get '/user/:id/retweet/:tweet_id' do
-    sender_id = params['id'].to_i
+post '/retweet/:tweet_id' do
+    sender_id = Authentication.get_logged_in_user_id(session)
     tweet_id = params['tweet_id'].to_i
-    if Authentication.has_user_privilege?(session, sender_id) then
+    if !sender_id.nil? then
         tweet = Tweet.find_by(id: tweet_id);
         if tweet.nil? then
             return status 403
         end
         Tweet.add(sender_id, tweet['content'], nil)
-        redirect to("/user/#{sender_id}")
+        return status 200
     else
         return status 403
     end
@@ -142,25 +142,17 @@ get '/logout' do
     redirect to("/")
 end
 
-#follow the user of given id
-post '/user/:id/follow' do
+#follow/unfollow the user of given id
+post %r{/user/(?<id>\d+)/(?<action>(follow|unfollow))$} do
     followee_id = params['id'].to_i
     follower_id = session[:user_id]
-    if (follower_id.nil?) then
-        return status 403
+    return status 403 if follower_id.nil?
+    return status 403 if followee_id == follower_id
+    if params['action'] == "follow" then
+        Relation.find_or_create_by(followee_id: followee_id, follower_id: follower_id)
+    else
+        Relation.where(followee_id: followee_id, follower_id: follower_id).delete_all
     end
-    Relation.find_or_create_by(followee_id: followee_id, follower_id: follower_id)
-    return status 200
-end
-
-#unfollow the user of given id
-post '/user/:id/unfollow' do
-    followee_id = params['id'].to_i
-    follower_id = session[:user_id]
-    if (follower_id.nil?) then
-        return status 403
-    end
-    Relation.where(followee_id: followee_id, follower_id: follower_id).delete_all
     return status 200
 end
 

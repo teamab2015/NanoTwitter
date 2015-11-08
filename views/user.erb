@@ -19,7 +19,7 @@ user: {name:text, email:text, id:integer}
           </div>
           <div class="col-sm-2 vcenter" style="text-align: center;">
               <h4><%= @user["name"] %> @<%= @user["username"] %></h4>
-              <% if !@loggedin || @isHome%>
+              <% if !@logged_in_user || @isHome%>
               <% elsif @isFollowed %>
                 <button class="btn btn-success" id="follow_button">Unfollow</button>
               <% else %>
