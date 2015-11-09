@@ -1,0 +1,19 @@
+<li class="dropdown notification" id="notification_dropdown">
+    <a href="#" class="dropdown-toggle notification" role="button" aria-haspopup="true" aria-expanded="false">
+        <span class="glyphicon glyphicon-bell" aria-hidden="true" style="vertical-align: text-top;"></span>
+        <span class="badge" id="notification_badge">{N.notifications | length}</span>
+    </a>
+    <ul class="dropdown-menu" id="notification_list" rv-if="N.notifications | length | gt 0">
+        <li rv-each-notification="N.notifications" rv-class-disabled="notification.disabled">
+            <a>
+            <span rv-on-click="N.onClearClick" class="badge"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></span>
+            <span rv-on-click="N.onContentClick" class="notification_content">{ notification.content.content }</span>
+            </a>
+        </li>
+        <li role="separator" class="divider"></li>
+        <li><a rv-on-click="N.onClearAllClick">Remove all</a></li>
+    </ul>
+    <ul class="dropdown-menu" id="notification_list" rv-if="N.notifications | length | eq 0">
+        <li><a>You do not have any messages.</a></li>
+    </ul>
+</li>

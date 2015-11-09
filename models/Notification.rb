@@ -18,4 +18,17 @@ class Notification < ActiveRecord::Base
         return Notification.where(user_id: user_id, has_read: false).order(created: :desc)
     end
 
+    def self.clear(notification_id, user_id)
+        params = {user_id: user_id, has_read: false}
+        params[:id] = notification_id if notification_id != nil
+        relation = self.where(params)
+        return false if relation.blank?
+        relation.update_all(has_read: true)
+        return true
+    end
+
+    def self.clearAll(user_id)
+        return self.clear(nil, user_id)
+    end
+
 end

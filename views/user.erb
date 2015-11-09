@@ -4,7 +4,17 @@ loggedin: bool
 user: {name:text, email:text, id:integer}
 -->
 <html lang="en">
-    <%= erb :head %>
+    <head>
+        <%= erb :head %>
+        <title>
+            <% if @user %>
+                Timeline of <%= @user["name"] %>
+            <% else %>
+                Nano Twitter
+            <% end %>
+        </title>
+    </head>
+
     <body>
     <%= erb :nav %>
 

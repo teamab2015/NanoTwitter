@@ -4,7 +4,11 @@ loggedin: bool
 user: {name:text, email:text, id:integer}
 -->
 <html lang="en">
-    <%= erb :head %>
+    <head>
+        <%= erb :head %>
+        <title>Tag - <%= @tag.word %></title>
+    </head>
+    
     <body>
     <%= erb :nav %>
 

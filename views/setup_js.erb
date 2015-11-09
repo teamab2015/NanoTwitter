@@ -58,25 +58,82 @@ $("#follow_button").click(function() {
     setFollowRelation($(this)[0], $(this)[0].innerHTML=="Follow");
 });
 
-var Notification = (function() {
+rivets.formatters.length = function(value)
+{
+  return value ? (value.length || 0) : 0;
+};
 
-    function updateNotificationList(notifications) {
-        $("#notification_badge")[0].innerHTML = notifications.length;
-    }
+rivets.formatters.eq = function(value, args)
+{
+  return value === args;
+};
 
-    function getUnreadNotification() {
-        $("#notification_badge")[0].innerHTML = "...";
-        var url = window.location.href + '/notifications';
-        $.get(url, function(data) {
-            updateNotificationList(data);
-        }).always(function() {
-            console.log("end");
+rivets.formatters.gt = function(value, args)
+{
+  return value > args;
+};
+
+(function() {
+    var Notification = {};
+    var isRefreshBlocked = false;
+    Notification.notifications = [];
+
+    function update() {
+        getUnreadNotification(function(data){
+            if (data !== null && data.constructor === Array) Notification.notifications = data;
         });
     }
 
-    function clearNotification(id) {
-
+    function getUnreadNotification(callback) {
+        var url = '/notifications';
+        $.get(url, function(data) {
+            data.forEach(function(x) {
+                x.content = JSON.parse(x.content);
+                x.disabled = false;
+            });
+            callback(data);
+        }).fail(function() {
+            callback(null);
+        });
     }
+
+    function clearNotification(id, callback) {
+        callback = callback || function(){};
+        $.ajax({
+            url: '/notifications/'+id,
+            type: 'DELETE',
+            success: function(result) {
+                callback(true);
+            },
+            fail: function(jqXHR, s) {
+                callback(false, s);
+            }
+        });
+    }
+
+    function clearAllNotifications(callback) {
+        clearNotification(-1, callback);
+    }
+
+    Notification.onContentClick = function(event, obj) {
+        window.location.href = Notification.notifications[obj.index].content.link;
+    }
+
+    Notification.onClearClick = function(event, obj) {
+        Notification.notifications[obj.index].disabled = true;
+        clearNotification(Notification.notifications[obj.index].id);
+    }
+
+    Notification.onClearAllClick = function(event, obj) {
+        Notification.notifications.forEach(function(x) {x.disabled = true});
+        clearAllNotifications();
+    }
+
+    setInterval(function(){ update(); }, 1000);
+
+    rivets.bind($('#notification_dropdown'), {N: Notification});
+
+    x = Notification.notifications;
 
 }());
 </script>

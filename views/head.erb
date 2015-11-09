@@ -1,44 +1,25 @@
-<head>
-    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="/js/pnotify.custom.min.js"></script>
-    <link href="/css/pnotify.custom.min.css" media="all" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="/js/notify-setup.js"></script>
-    <style>
-    .vcenter {
-        display: inline-block;
-        vertical-align: middle;
-        float: none;
-    }
-    ul#notification_list .badge {
-        background-color: transparent;
-        color: black;
-        float: right;
-    }
-    ul#notification_list .badge :hover {
-        color: red;
-    }
-    ul#notification_list .notification_content {
-        display: block;
-        margin-right: 30px;
-    }
-    </style>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/pnotify.custom.min.js"></script>
+<link href="/css/pnotify.custom.min.css" media="all" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/js/notify-setup.js"></script>
+<script type="text/javascript" src="/js/rivets.bundled.min.js"></script>
+<link href="/css/custom.css" media="all" rel="stylesheet" type="text/css" />
 
-    <title>
-        <% if @user %>
-            Timeline of <%= @user["name"] %>
-        <% elsif @tag %>
-            Tag - <%= @tag.word %>
-        <% else %>
-            Nano Twitter
-        <% end %>
-    </title>
-</head>
+<title>
+    <% if @user %>
+        Timeline of <%= @user["name"] %>
+    <% elsif @tag %>
+        Tag - <%= @tag.word %>
+    <% else %>
+        Nano Twitter
+    <% end %>
+</title>

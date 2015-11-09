@@ -14,7 +14,7 @@
             <a data-toggle="collapse" data-target="#reply_panel_<%= tweet["id"] %>" aria-expanded="false" aria-controls="reply_panel_<%= tweet["id"] %>">reply @<%= tweet["username"] %></a>
             <br><br>
             <div class="collapse" id="reply_panel_<%= tweet["id"] %>">
-                <form action="/user/<%= @user["id"] %>/tweet" method="post" id="reply_form_<%= tweet["id"] %>">
+                <form action="/tweet" method="post" id="reply_form_<%= tweet["id"] %>">
                 <div class="input-group">
                   <input type="text" class="form-control" value="<%= tweet["id"] %>" name="reply_index" style="display: none;">
                   <input type="text" class="form-control" value="@<%= tweet["username"] %> " name="tweet_prefix" style="display: none;">

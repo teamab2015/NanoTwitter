@@ -37,7 +37,12 @@ end
 
 #display register page
 get '/user/register' do
-    erb :register
+    logged_in_user_id = Authentication.get_logged_in_user_id(session)
+    if logged_in_user_id.nil? then
+        erb :register
+    else
+        redirect to("/user/#{logged_in_user_id}")
+    end
 end
 
 post '/user/register' do
@@ -75,12 +80,25 @@ get '/tags/:id' do
     erb :tag
 end
 
-#notification api
-get '/user/:id/notifications' do
+#notification get api
+get '/notifications' do
     logged_in_user_id = Authentication.get_logged_in_user_id(session)
     if (logged_in_user_id.nil?) then return status 404; end
     content_type :json
     Notification.getUnread(logged_in_user_id).to_json
+end
+
+#notification delete api
+delete '/notifications/:id' do
+    notification_id = params['id'].to_i
+    logged_in_user_id = Authentication.get_logged_in_user_id(session)
+    if (logged_in_user_id.nil?) then return status 404; end
+    result = notification_id == -1 ? Notification.clearAll(logged_in_user_id) : Notification.clear(notification_id, logged_in_user_id)
+    if result then
+        return status 200
+    else
+        return status 404
+    end
 end
 
 post '/retweet/:tweet_id' do
@@ -103,9 +121,9 @@ get '/login' do
     redirect to("/")
 end
 
-post '/user/:id/tweet' do
-    sender_id = params['id'].to_i
-    if Authentication.has_user_privilege?(session, sender_id) then
+post '/tweet' do
+    sender_id = Authentication.get_logged_in_user_id(session)
+    if !sender_id.nil? then
         tweet_content = params[:tweet]
         reply_index = params[:reply_index]
         tweet_prefix = params[:tweet_prefix]
