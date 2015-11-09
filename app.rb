@@ -160,6 +160,21 @@ get '/logout' do
     redirect to("/")
 end
 
+get '/tweet/:id' do
+    id = params['id'].to_i
+    @taget_tweet = Tweet.find_by(id: id)
+    return status 404 if @taget_tweet.nil?
+    match = Tweet.parse_reply_index(@taget_tweet.reply_index)
+    @root_tweet = match.nil? ? @taget_tweet : Tweet.find_by(id: match[:root_tweet_id])
+    @tweets = Tweet.where("reply_index LIKE '#{@root_tweet.id}%' OR id = #{@root_tweet.id}")
+    partial = params[:partial]
+    if partial.nil? then
+        erb :tweet
+    else
+        erb :tweets_list
+    end
+end
+
 #follow/unfollow the user of given id
 post %r{/user/(?<id>\d+)/(?<action>(follow|unfollow))$} do
     followee_id = params['id'].to_i
@@ -237,11 +252,11 @@ get '/tweets/recent' do
 end
 
 #return the tweet with given id
-get '/tweets/:id' do
-    id = params['id'].to_i
-    content_type :json
-    Tweet.find_by(id: id).to_json
-end
+# get '/tweets/:id' do
+#     id = params['id'].to_i
+#     content_type :json
+#     Tweet.find_by(id: id).to_json
+# end
 
 #TODO use regex to merge '/tweets/:id' and '/users/:id'
 #return the information for user with given id

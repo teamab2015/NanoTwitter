@@ -12,16 +12,23 @@ class Tweet < ActiveRecord::Base
         tweet = Tweet.create(sender_id: sender_id,
                              content: tweet_content,
                              created: DateTime.now,
-                             reply_index: self.check_reply_index(reply_index))
+                             reply_index: self.process_reply_index(reply_index))
         Tag.processTweet(tweet)
         Mention.processTweet(tweet)
         tweet.save
     end
 
-    def self.check_reply_index(reply_index)
-        return nil if reply_index.nil?
-        match = /^\d+(-\d+)*$/.match(reply_index)
+    def self.process_reply_index(reply_index)
+        match = parse_reply_index(reply_index)
         return match.nil? ? nil : reply_index
+    end
+
+    #root_tweet_id   =  match[:root_tweet_id]
+    #parent_tweet_id = match[:parent_tweet_id]
+    def self.parse_reply_index(reply_index)
+        return nil if reply_index.nil?
+        match = /^(?<root_tweet_id>\d+)(-(?<parent_tweet_id>\d+))?$/.match(reply_index)
+        return match
     end
 
     def self.getTimeline(params)

@@ -6,7 +6,7 @@ user: {name:text, email:text, id:integer}
 <html lang="en">
     <head>
         <%= erb :head %>
-        <title>Tag - <%= @tag.word %></title>
+        <title>Tweet - <%= @root_tweet.content %></title>
     </head>
 
     <body>
@@ -15,7 +15,6 @@ user: {name:text, email:text, id:integer}
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron" style="padding-bottom: 30px;">
       <div class="container">
-        <h3>Tag: <%= @tag.word %></h3>
       </div>
     </div>
 
