@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!--
+loggedin: bool
+user: {name:text, email:text, id:integer}
+-->
+<html lang="en">
+    <head>
+        <%= erb :head %>
+        <title>Tweet - <%= @taget_tweet.content %></title>
+    </head>
+
+    <body>
+    <%= erb :nav %>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron" style="padding-bottom: 30px;">
+      <div class="container">
+      </div>
+    </div>
+
+    <%= erb(:tweets_list, :locals => {position: '__tweet'}) %>
+
+    <% if @logged_in_user %>
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form method="post" id="reply_form">
+                <div class="input-group">
+                  <input type="text" class="form-control" name="reply_index" style="display: none;">
+                  <input type="text" class="form-control" name="tweet_prefix" style="display: none;">
+                  <span class="input-group-addon"></span>
+                  <input type="text" class="form-control" name="tweet" disabled="true">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" disabled="true">Reply</button>
+                  </span>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <% end %>
+    <%= erb :setup_js %>
+
+    </body>
+
+
+</html>

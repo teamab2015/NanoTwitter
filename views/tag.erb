@@ -4,10 +4,13 @@ loggedin: bool
 user: {name:text, email:text, id:integer}
 -->
 <html lang="en">
-    <%= erb :head %>
+    <head>
+        <%= erb :head %>
+        <title>Tag - <%= @tag.word %></title>
+    </head>
+
     <body>
     <%= erb :nav %>
-
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron" style="padding-bottom: 30px;">
@@ -16,7 +19,7 @@ user: {name:text, email:text, id:integer}
       </div>
     </div>
 
-    <%= erb :tweets_list %>
+    <%= erb(:tweets_list, :locals => {position: '__tag'}) %>
     <%= erb :setup_js %>
 
     </body>

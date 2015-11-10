@@ -4,7 +4,17 @@ loggedin: bool
 user: {name:text, email:text, id:integer}
 -->
 <html lang="en">
-    <%= erb :head %>
+    <head>
+        <%= erb :head %>
+        <title>
+            <% if @user %>
+                Timeline of <%= @user["name"] %>
+            <% else %>
+                Nano Twitter
+            <% end %>
+        </title>
+    </head>
+
     <body>
     <%= erb :nav %>
 
@@ -19,7 +29,7 @@ user: {name:text, email:text, id:integer}
           </div>
           <div class="col-sm-2 vcenter" style="text-align: center;">
               <h4><%= @user["name"] %> @<%= @user["username"] %></h4>
-              <% if !@loggedin || @isHome%>
+              <% if !@logged_in_user || @isHome%>
               <% elsif @isFollowed %>
                 <button class="btn btn-success" id="follow_button">Unfollow</button>
               <% else %>
@@ -47,10 +57,21 @@ user: {name:text, email:text, id:integer}
       <% end %>
     </div>
 
-    <%= erb :tweets_list %>
+    <%= erb(:tweets_list, :locals => {position: '__base'}) %>
+
+    <div class="modal fade" id="tweet_modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+              Loading...
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <%= erb :setup_js %>
 
     </body>
-
 
 </html>

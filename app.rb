@@ -10,7 +10,6 @@ require './models/Tag'
 require './models/Tag_ownership'
 require './models/Notification'
 require './models/Mention'
-require './models/Reply'
 require './models/Tweet'
 require './models/User'
 require 'date'
@@ -31,14 +30,19 @@ get '/' do
     if logged_in_user_id != nil then
         redirect to("/user/#{logged_in_user_id}")
     else
-        @tweets = Tweet.getTimeline
+        @tweets = Tweet.getTimeline({})
         erb :user
     end
 end
 
 #display register page
 get '/user/register' do
-    erb :register
+    logged_in_user_id = Authentication.get_logged_in_user_id(session)
+    if logged_in_user_id.nil? then
+        erb :register
+    else
+        redirect to("/user/#{logged_in_user_id}")
+    end
 end
 
 post '/user/register' do
@@ -64,7 +68,7 @@ get '/user/:id' do
         @isFollowed = Relation.find_by(followee_id: @user.id, follower_id: @logged_in_user.id) != nil
         @isHome = @logged_in_user.id == @user.id
     end
-    @tweets = Tweet.getTimeline(@user.id)
+    @tweets = Tweet.getTimeline(user_id: @user.id)
     erb :user
 end
 
@@ -76,24 +80,37 @@ get '/tags/:id' do
     erb :tag
 end
 
-#notification api
-get '/user/:id/notifications' do
+#notification get api
+get '/notifications' do
     logged_in_user_id = Authentication.get_logged_in_user_id(session)
     if (logged_in_user_id.nil?) then return status 404; end
     content_type :json
     Notification.getUnread(logged_in_user_id).to_json
 end
 
-get '/user/:id/retweet/:tweet_id' do
-    sender_id = params['id'].to_i
+#notification delete api
+delete '/notifications/:id' do
+    notification_id = params['id'].to_i
+    logged_in_user_id = Authentication.get_logged_in_user_id(session)
+    if (logged_in_user_id.nil?) then return status 404; end
+    result = notification_id == -1 ? Notification.clearAll(logged_in_user_id) : Notification.clear(notification_id, logged_in_user_id)
+    if result then
+        return status 200
+    else
+        return status 404
+    end
+end
+
+post '/retweet/:tweet_id' do
+    sender_id = Authentication.get_logged_in_user_id(session)
     tweet_id = params['tweet_id'].to_i
-    if Authentication.has_user_privilege?(session, sender_id) then
+    if !sender_id.nil? then
         tweet = Tweet.find_by(id: tweet_id);
         if tweet.nil? then
             return status 403
         end
         Tweet.add(sender_id, tweet['content'], nil)
-        redirect to("/user/#{sender_id}")
+        return status 200
     else
         return status 403
     end
@@ -104,14 +121,15 @@ get '/login' do
     redirect to("/")
 end
 
-post '/user/:id/tweet' do
-    sender_id = params['id'].to_i
-    if Authentication.has_user_privilege?(session, sender_id) then
+post '/tweet' do
+    sender_id = Authentication.get_logged_in_user_id(session)
+    if !sender_id.nil? then
         tweet_content = params[:tweet]
         reply_index = params[:reply_index]
         tweet_prefix = params[:tweet_prefix]
         tweet_content = tweet_prefix + tweet_content if tweet_prefix != nil
         Tweet.add(sender_id, tweet_content, reply_index)
+        return status 200 if params[:avoid_redirect]
         redirect to("/user/#{sender_id}")
     else
         return status 403
@@ -143,25 +161,33 @@ get '/logout' do
     redirect to("/")
 end
 
-#follow the user of given id
-post '/user/:id/follow' do
-    followee_id = params['id'].to_i
-    follower_id = session[:user_id]
-    if (follower_id.nil?) then
-        return status 403
+get '/tweet/:id' do
+    @logged_in_user = Authentication.get_logged_in_user(session)
+    id = params['id'].to_i
+    @taget_tweet = Tweet.find_by(id: id)
+    return status 404 if @taget_tweet.nil?
+    match = Tweet.parse_reply_index(@taget_tweet.reply_index)
+    root_tweet_id = match.nil? ? @taget_tweet.id : match[:root_tweet_id]
+    @tweets = Tweet.getReplies(root_tweet_id)
+    partial = params[:partial]
+    if partial.nil? then
+        erb :tweet
+    else
+        erb :tweets_modal
     end
-    Relation.find_or_create_by(followee_id: followee_id, follower_id: follower_id)
-    return status 200
 end
 
-#unfollow the user of given id
-post '/user/:id/unfollow' do
+#follow/unfollow the user of given id
+post %r{/user/(?<id>\d+)/(?<action>(follow|unfollow))$} do
     followee_id = params['id'].to_i
     follower_id = session[:user_id]
-    if (follower_id.nil?) then
-        return status 403
+    return status 403 if follower_id.nil?
+    return status 403 if followee_id == follower_id
+    if params['action'] == "follow" then
+        Relation.find_or_create_by(followee_id: followee_id, follower_id: follower_id)
+    else
+        Relation.where(followee_id: followee_id, follower_id: follower_id).delete_all
     end
-    Relation.where(followee_id: followee_id, follower_id: follower_id).delete_all
     return status 200
 end
 
@@ -228,11 +254,11 @@ get '/tweets/recent' do
 end
 
 #return the tweet with given id
-get '/tweets/:id' do
-    id = params['id'].to_i
-    content_type :json
-    Tweet.find_by(id: id).to_json
-end
+# get '/tweets/:id' do
+#     id = params['id'].to_i
+#     content_type :json
+#     Tweet.find_by(id: id).to_json
+# end
 
 #TODO use regex to merge '/tweets/:id' and '/users/:id'
 #return the information for user with given id
@@ -253,5 +279,5 @@ end
 get '/users/:id/timeline' do
     id = params['id'].to_i
     content_type :json
-    Tweet.getTimeline(id).to_json
+    Tweet.getTimeline(user_id: id).to_json
 end
