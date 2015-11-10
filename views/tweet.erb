@@ -20,22 +20,25 @@ user: {name:text, email:text, id:integer}
 
     <%= erb(:tweets_list, :locals => {position: '__tweet'}) %>
 
+    <% if @logged_in_user %>
     <div class="container">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <form action="/tweet" method="post" id="reply_form">
-            <div class="input-group">
-              <input type="text" class="form-control" name="reply_index" style="display: none;">
-              <input type="text" class="form-control" name="tweet_prefix" style="display: none;">
-              <span class="input-group-addon"></span>
-              <input type="text" class="form-control" name="tweet">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="submit" form="reply_form">Reply</button>
-              </span>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form method="post" id="reply_form">
+                <div class="input-group">
+                  <input type="text" class="form-control" name="reply_index" style="display: none;">
+                  <input type="text" class="form-control" name="tweet_prefix" style="display: none;">
+                  <span class="input-group-addon"></span>
+                  <input type="text" class="form-control" name="tweet" disabled="true">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" disabled="true">Reply</button>
+                  </span>
+                </div>
+                </form>
             </div>
-            </form>
         </div>
     </div>
+    <% end %>
     <%= erb :setup_js %>
 
     </body>

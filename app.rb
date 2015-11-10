@@ -162,6 +162,7 @@ get '/logout' do
 end
 
 get '/tweet/:id' do
+    @logged_in_user = Authentication.get_logged_in_user(session)
     id = params['id'].to_i
     @taget_tweet = Tweet.find_by(id: id)
     return status 404 if @taget_tweet.nil?
