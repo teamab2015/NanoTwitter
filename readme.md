@@ -1,8 +1,18 @@
 NanoTwitter TEAMAB
 =======
 [ ![Codeship Status for cheng9393/NanoTwitter](https://codeship.com/projects/202aa180-5fb8-0133-eeaa-4e587625a674/status?branch=master)](https://codeship.com/projects/111898)
-  
+
 [![Code Climate](https://codeclimate.com/github/cheng9393/NanoTwitter/badges/gpa.svg)](https://codeclimate.com/github/cheng9393/NanoTwitter)
+
+[Demo https://teamab.herokuapp.com](https://teamab.herokuapp.com "Demo")  
+
+This a sinatra application that imitates Twitter. It has following functions:
+1. view timeline
+2. follow/unfollow
+3. notification
+5. tweet with _@ mention_ and _# tag_
+6. tag view
+7. reply view  
 
 require ruby 2.+  
 Run rake db:reset to clear the database and reseed.  
