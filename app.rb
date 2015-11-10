@@ -129,6 +129,7 @@ post '/tweet' do
         tweet_prefix = params[:tweet_prefix]
         tweet_content = tweet_prefix + tweet_content if tweet_prefix != nil
         Tweet.add(sender_id, tweet_content, reply_index)
+        return status 200 if params[:avoid_redirect]
         redirect to("/user/#{sender_id}")
     else
         return status 403
@@ -165,13 +166,13 @@ get '/tweet/:id' do
     @taget_tweet = Tweet.find_by(id: id)
     return status 404 if @taget_tweet.nil?
     match = Tweet.parse_reply_index(@taget_tweet.reply_index)
-    @root_tweet = match.nil? ? @taget_tweet : Tweet.find_by(id: match[:root_tweet_id])
-    @tweets = Tweet.where("reply_index LIKE '#{@root_tweet.id}%' OR id = #{@root_tweet.id}")
+    root_tweet_id = match.nil? ? @taget_tweet.id : match[:root_tweet_id]
+    @tweets = Tweet.getReplies(root_tweet_id)
     partial = params[:partial]
     if partial.nil? then
         erb :tweet
     else
-        erb :tweets_list
+        erb :tweets_modal
     end
 end
 

@@ -57,10 +57,21 @@ user: {name:text, email:text, id:integer}
       <% end %>
     </div>
 
-    <%= erb :tweets_list %>
+    <%= erb(:tweets_list, :locals => {position: '__base'}) %>
+
+    <div class="modal fade" id="tweet_modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+              Loading...
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <%= erb :setup_js %>
 
     </body>
-
 
 </html>

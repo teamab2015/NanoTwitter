@@ -46,4 +46,9 @@ class Tweet < ActiveRecord::Base
         return self.connection.execute(sql)
     end
 
+    def self.getReplies(tweet_id)
+        sql = "SELECT * FROM users, (SELECT tweets.* FROM tweets WHERE reply_index LIKE '#{tweet_id}%' OR id = #{tweet_id} ORDER BY tweets.created ASC) as tweets where tweets.sender_id = users.id"
+        return self.connection.execute(sql)
+    end
+
 end

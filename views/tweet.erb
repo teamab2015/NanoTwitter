@@ -6,7 +6,7 @@ user: {name:text, email:text, id:integer}
 <html lang="en">
     <head>
         <%= erb :head %>
-        <title>Tweet - <%= @root_tweet.content %></title>
+        <title>Tweet - <%= @taget_tweet.content %></title>
     </head>
 
     <body>
@@ -18,7 +18,24 @@ user: {name:text, email:text, id:integer}
       </div>
     </div>
 
-    <%= erb :tweets_list %>
+    <%= erb(:tweets_list, :locals => {position: '__tweet'}) %>
+
+    <div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form action="/tweet" method="post" id="reply_form">
+            <div class="input-group">
+              <input type="text" class="form-control" name="reply_index" style="display: none;">
+              <input type="text" class="form-control" name="tweet_prefix" style="display: none;">
+              <span class="input-group-addon"></span>
+              <input type="text" class="form-control" name="tweet">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="submit" form="reply_form">Reply</button>
+              </span>
+            </div>
+            </form>
+        </div>
+    </div>
     <%= erb :setup_js %>
 
     </body>
