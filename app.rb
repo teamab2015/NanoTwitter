@@ -16,6 +16,7 @@ require 'date'
 require './libs/seeds'
 require './libs/authentication'
 require './libs/helper'
+require 'newrelic_rpm'
 
 set :bind, '0.0.0.0'
 set :port, 4567
