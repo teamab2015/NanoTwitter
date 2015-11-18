@@ -1,0 +1,19 @@
+Homepage (250 clients per second over 1 min)
+Response Time 6361(avg) 25(min) 10006(max)
+Success 2008 Timeout 1251
+
+Tweet & get user timeline (250 clients per second over 1 min)
+Response Time 12678(avg) 1452(min) 20006(max)
+Success 1683 Timeout 672
+
+Tweet (250 clients per second over 1 min)
+Response Time 3995(avg) 27(min) 10002(max)
+Success 5283 Timeout 47
+
+Get user timeline (250 clients per second over 1 min) (reached the error threshold)
+Response Time 8084(avg) 94(min) 10004(max)
+Success 555 Timeout 642
+
+create user (15 clients over 1 min)
+Response Time 26(avg) 15(min) 74(max)
+Success 15 Timeout 0

@@ -17,6 +17,7 @@ require 'date'
 require './libs/seeds'
 require './libs/authentication'
 require './libs/helper'
+require 'newrelic_rpm'
 
 set :bind, '0.0.0.0'
 set :port, 4567
@@ -206,14 +207,18 @@ get '/test/seed/:n' do
     return "done"
 end
 
-#each user generates n tweets
-get '/test/tweets/:n' do
-    n = params['n'].to_i
-    Seeds.generateTweets(n: n)
-    #user = User.find_by(name: 'test')
-    #if (user == nil) then return; end
-    #redirect to("/test/users/#{user[:id]}/tweets/#{n}")
-    return "done"
+get '/test/tweets/:total_user_count' do
+    total_user_count = params['total_user_count'].to_i
+    prng = Random.new
+    Tweet.add(prng.rand(total_user_count), Faker::Lorem.sentence, nil)
+    return status 200
+end
+
+get '/test/timeline/:total_user_count' do
+    total_user_count = params['total_user_count'].to_i
+    prng = Random.new
+    content_type :json
+    Tweet.getTimeline(user_id: prng.rand(total_user_count)).to_json
 end
 
 #let user of given id generate n tweets

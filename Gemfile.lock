@@ -21,6 +21,7 @@ GEM
     i18n (0.7.0)
     json (1.8.3)
     minitest (5.8.1)
+    newrelic_rpm (3.14.0.305)
     pg (0.18.3)
     puma (2.15.3)
     rack (1.6.4)
@@ -50,6 +51,7 @@ DEPENDENCIES
   activerecord
   faker
   json
+  newrelic_rpm
   pg
   puma
   rack-test

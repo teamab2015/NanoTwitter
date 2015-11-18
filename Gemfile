@@ -10,9 +10,10 @@ gem "rack-test"
 gem 'puma'
 
 group :test, :development do
-  gem 'sqlite3'
+    gem 'sqlite3'
 end
 
 group :deployment do
-  gem 'pg'
+    gem 'newrelic_rpm'
+    gem 'pg'
 end
