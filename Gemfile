@@ -1,5 +1,5 @@
 source "https://rubygems.org"
-
+gem 'redis'
 gem "sinatra"
 gem "activerecord"
 gem "sinatra-activerecord"

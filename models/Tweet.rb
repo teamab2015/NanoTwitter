@@ -1,5 +1,6 @@
 require_relative './Mention'
 require_relative './Tag'
+require_relative '../libs/nt_cache'
 
 class Tweet < ActiveRecord::Base
     belongs_to :users
@@ -15,6 +16,7 @@ class Tweet < ActiveRecord::Base
                              reply_index: self.process_reply_index(reply_index))
         Tag.processTweet(tweet)
         Mention.processTweet(tweet)
+        NT_Cache.notifyTweetAdd(sender_id, tweet_content)
         tweet.save
     end
 
@@ -33,8 +35,16 @@ class Tweet < ActiveRecord::Base
 
     def self.getTimeline(params)
         user_id = params[:user_id]
-        limit = params[:limit] || 50
-        with_replies = params[:with_replies] || false
+        limit = params[:limit] ||= 50
+        with_replies = params[:with_replies] ||= false
+        result = NT_Cache.getTimeline(user_id, limit, with_replies)
+        return result if result != nil
+        result = self.getTimelineFromDB(user_id, limit, with_replies)
+        NT_Cache.notifyFetchTimeLineFromDB(user_id, limit, with_replies)
+        return result
+    end
+
+    def self.getTimelineFromDB(user_id, limit, with_replies)
         wheres = []
         wheres.push("reply_index IS NULL") if !with_replies
         wheres = wheres.length == 0 ? "true" : wheres.join(" AND ")
@@ -43,7 +53,8 @@ class Tweet < ActiveRecord::Base
         else
             sql = "SELECT * FROM users, (SELECT DISTINCT tweets.* FROM tweets LEFT JOIN relations ON tweets.sender_id=relations.followee_id WHERE (follower_id=#{user_id} OR sender_id=#{user_id}) AND #{wheres} ORDER BY tweets.created DESC LIMIT #{limit}) as tweets where tweets.sender_id = users.id"
         end
-        return self.connection.execute(sql)
+        result = self.connection.execute(sql)
+        return result
     end
 
     def self.getReplies(tweet_id)

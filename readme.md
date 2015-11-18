@@ -4,7 +4,7 @@ NanoTwitter TEAMAB
 
 [![Code Climate](https://codeclimate.com/github/cheng9393/NanoTwitter/badges/gpa.svg)](https://codeclimate.com/github/cheng9393/NanoTwitter)
 
-[Github https://github.com/cheng9393/NanoTwitter](https://github.com/cheng9393/NanoTwitter) 
+[Github https://github.com/cheng9393/NanoTwitter](https://github.com/cheng9393/NanoTwitter)
 
 [Demo https://teamab.herokuapp.com](https://teamab.herokuapp.com "Demo")  
 
