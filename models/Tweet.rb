@@ -1,5 +1,6 @@
 require_relative './Mention'
 require_relative './Tag'
+require_relative '../libs/nt_cache'
 
 class Tweet < ActiveRecord::Base
     belongs_to :users
@@ -15,6 +16,7 @@ class Tweet < ActiveRecord::Base
                              reply_index: self.process_reply_index(reply_index))
         Tag.processTweet(tweet)
         Mention.processTweet(tweet)
+        NT_Cache.notifyTweetAdd(sender_id, tweet_content)
         tweet.save
     end
 
@@ -35,6 +37,10 @@ class Tweet < ActiveRecord::Base
         user_id = params[:user_id]
         limit = params[:limit] ||= 50
         with_replies = params[:with_replies] ||= false
+        return NT_Cache.getTimeline(user_id, limit, with_replies) || self.getTimelineFromDB(user_id, limit, with_replies)
+    end
+
+    def self.getTimelineFromDB(user_id, limit, with_replies)
         wheres = []
         wheres.push("reply_index IS NULL") if !with_replies
         wheres = wheres.length == 0 ? "true" : wheres.join(" AND ")
@@ -50,27 +56,6 @@ class Tweet < ActiveRecord::Base
     def self.getReplies(tweet_id)
         sql = "SELECT * FROM users, (SELECT tweets.* FROM tweets WHERE reply_index LIKE '#{tweet_id}%' OR id = #{tweet_id} ORDER BY tweets.created ASC) as tweets where tweets.sender_id = users.id"
         return self.connection.execute(sql)
-    end
-
-    TIMELINE_ISAVAILABLE_KEY = "timeline_isAvailable"
-    AVAILABLE = "AVAILABLE"
-    INAVAILABLE = "INAVAILABLE"
-    TIMEOUT = 300
-
-    def self.notifyTimelineExpire()
-        $redis.set TIMELINE_ISAVAILABLE_KEY, INAVAILABLE
-    end
-
-    def self.getTimelineFromRedis(params)
-        timeline_isAvailable = $redis.get TIMELINE_ISAVAILABLE_KEY
-        return nil if timeline_isAvailable.nil? || timeline_isAvailable == INAVAILABLE
-        result = $redis.get(params.to_json)
-        return result
-    end
-
-    def self.updateTimelineToRedis(params, result)
-        $redis.set TIMELINE_ISAVAILABLE_KEY, AVAILABLE
-        $redis.expire TIMELINE_ISAVAILABLE_KEY, TIMEOUT
     end
 
 end
