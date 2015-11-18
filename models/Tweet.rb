@@ -37,7 +37,11 @@ class Tweet < ActiveRecord::Base
         user_id = params[:user_id]
         limit = params[:limit] ||= 50
         with_replies = params[:with_replies] ||= false
-        return NT_Cache.getTimeline(user_id, limit, with_replies) || self.getTimelineFromDB(user_id, limit, with_replies)
+        result = NT_Cache.getTimeline(user_id, limit, with_replies)
+        return result if result != nil
+        result = self.getTimelineFromDB(user_id, limit, with_replies)
+        NT_Cache.notifyFetchTimeLineFromDB(user_id, limit, with_replies)
+        return result
     end
 
     def self.getTimelineFromDB(user_id, limit, with_replies)
