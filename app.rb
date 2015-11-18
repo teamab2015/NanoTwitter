@@ -1,7 +1,6 @@
 require 'sinatra'
 require 'sinatra/activerecord'
 require './config/environments'
-require './config/initializers/redis.rb'
 require 'faker'
 require 'json'
 require './models/User'

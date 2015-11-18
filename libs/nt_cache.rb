@@ -1,3 +1,5 @@
+require_relative '../config/initializers/redis.rb'
+
 module NT_Cache
 
   def self.getTimeline(user_id, limit, with_replies)
