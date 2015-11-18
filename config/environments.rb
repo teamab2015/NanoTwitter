@@ -1,6 +1,6 @@
 configure :production do
   puts "[production environment]"
-  db = URI.parse(ENV['DATABASE_URL'] || 'postgres://localhost/mydb')
+  db = URI.parse(ENV['HEROKU_POSTGRESQL_COPPER_URL'] || ENV['DATABASE_URL'] || 'postgres://localhost/mydb')
 
   ActiveRecord::Base.establish_connection(
       :adapter => db.scheme == 'postgres' ? 'postgresql' : db.scheme,
