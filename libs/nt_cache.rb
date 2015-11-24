@@ -75,7 +75,7 @@ module NT_Cache
 
 end
 
-if ENV['RAILS_ENV'] != 'test' then
+if ENV['RAILS_ENV'] != 'test' && ENV['ignore_cache_setup'].nil? then
     puts 'NT_Cache.setup'
     NT_Cache.setup
 end
