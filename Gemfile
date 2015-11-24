@@ -8,6 +8,7 @@ gem "faker"
 gem "json"
 gem "rack-test"
 gem 'puma'
+gem 'resque', "~> 1.22.0"
 
 group :test, :development do
     gem 'sqlite3'
