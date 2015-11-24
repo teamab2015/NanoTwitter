@@ -21,6 +21,7 @@ GEM
     i18n (0.7.0)
     json (1.8.3)
     minitest (5.8.1)
+    multi_json (1.11.2)
     newrelic_rpm (3.14.0.305)
     pg (0.18.3)
     puma (2.15.3)
@@ -31,6 +32,13 @@ GEM
       rack (>= 1.0)
     rake (10.4.2)
     redis (3.2.1)
+    redis-namespace (1.5.2)
+      redis (~> 3.0, >= 3.0.4)
+    resque (1.22.0)
+      multi_json (~> 1.0)
+      redis-namespace (~> 1.0)
+      sinatra (>= 0.9.2)
+      vegas (~> 0.1.2)
     sinatra (1.4.6)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -43,6 +51,8 @@ GEM
     tilt (2.0.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    vegas (0.1.11)
+      rack (>= 1.0.0)
 
 PLATFORMS
   ruby
@@ -57,6 +67,7 @@ DEPENDENCIES
   rack-test
   rake
   redis
+  resque (~> 1.22.0)
   sinatra
   sinatra-activerecord
   sqlite3

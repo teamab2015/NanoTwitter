@@ -13,10 +13,12 @@
         <% if @logged_in_user && tweet["sender_id"] != @logged_in_user["id"] %>
             <a tweet-id="<%= tweet["id"] %>" class="retweet">retweet</a>
             &nbsp;&nbsp;
+            <% if tweet["id"] %>
             <a class="modal_access <%= position %> reply">reply @<%= tweet["username"] %></a>
             &nbsp;&nbsp;
+            <% end %>
         <% end %>
-        <% if position != '__tweet_modal' && position != '__tweet' %>
+        <% if position != '__tweet_modal' && position != '__tweet' && tweet["id"] %>
             <a class="modal_access <%= position %> details">details</a>
         <% end %>
       </div>

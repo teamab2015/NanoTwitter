@@ -1,23 +1,50 @@
 require_relative './Mention'
 require_relative './Tag'
-require_relative '../libs/nt_cache'
+
+module LoggedJob
+  def before_perform_log_job(*args)
+    puts "About to perform #{self} with #{args.inspect}"
+  end
+end
+
+module FailedJob
+  def on_failure_retry(e, *args)
+    puts "Performing #{self} caused an exception (#{e})."
+    #Resque.enqueue self, *args
+  end
+end
 
 class Tweet < ActiveRecord::Base
+    extend LoggedJob
+    extend FailedJob
     belongs_to :users
     has_many :tag_ownerships
     has_many :mentions
     has_many :tags, through: :tag_ownerships
     has_many :users, through: :mentions
+    @queue = :tweet_add
 
     def self.add(sender_id, tweet_content, reply_index)
+        created = DateTime.now
+        NT_Cache.notifyRawTweetAdd(sender_id, tweet_content, reply_index, created)
+        Resque.enqueue(Tweet, 'write', sender_id, tweet_content, reply_index, created)
+    end
+
+    def self.write(*args)
+        sender_id, tweet_content, reply_index, created = *args
         tweet = Tweet.create(sender_id: sender_id,
                              content: tweet_content,
-                             created: DateTime.now,
+                             created: created,
                              reply_index: self.process_reply_index(reply_index))
         Tag.processTweet(tweet)
         Mention.processTweet(tweet)
-        NT_Cache.notifyTweetAdd(sender_id, tweet_content)
+        NT_Cache.notifyTweetAdd(tweet)
         tweet.save
+    end
+
+    def self.perform(*args)
+        method = self.method(*args.first)
+        method.call(*args[1..-1])
     end
 
     def self.process_reply_index(reply_index)
@@ -40,7 +67,7 @@ class Tweet < ActiveRecord::Base
         result = NT_Cache.getTimeline(user_id, limit, with_replies)
         return result if result != nil
         result = self.getTimelineFromDB(user_id, limit, with_replies)
-        NT_Cache.notifyFetchTimeLineFromDB(user_id, limit, with_replies)
+        NT_Cache.notifyFetchTimeLineFromDB(user_id, limit, with_replies, result)
         return result
     end
 

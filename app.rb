@@ -3,6 +3,8 @@ require 'sinatra/activerecord'
 require './config/environments'
 require 'faker'
 require 'json'
+require './config/initializers/redis.rb'
+require 'resque'
 require './models/User'
 require './models/Tweet'
 require './models/Relation'
@@ -17,6 +19,7 @@ require './libs/seeds'
 require './libs/authentication'
 require './libs/helper'
 require 'newrelic_rpm'
+require './libs/nt_cache'
 
 set :bind, '0.0.0.0'
 set :port, 4567
@@ -220,12 +223,16 @@ get '/test/timeline/:total_user_count' do
     Tweet.getTimeline(user_id: prng.rand(total_user_count)).to_json
 end
 
-#let user of given id generate n tweets
-get '/test/users/:id/tweets/:n' do
-    n = params['n'].to_i
+get '/test/user/:id/timeline' do
     user_id = params['id'].to_i
-    Seeds.generateTweets(sender_id: user_id, n: n)
-    return "done"
+    content_type :json
+    Tweet.getTimeline(user_id: user_id).to_json
+end
+
+#let user of given id generate n tweets
+get '/test/user/:id/tweet' do
+    user_id = params['id'].to_i
+    Tweet.add(user_id, Faker::Lorem.sentence, nil)
 end
 
 #randomly select n users to follow user “testuser”
@@ -233,7 +240,6 @@ get '/test/follow/:n' do
     n = params['n'].to_i
     test_user = User.find_by(name: 'test')
     Seeds.generateRelations(followee_id: test_user[:id], n: n)
-    return "done"
 end
 
 #ask a user with given id to follow n other users
@@ -241,7 +247,6 @@ get '/test/users/:id/follow/:n' do
     id = params['id'].to_i
     n = params['n'].to_i
     Seeds.generateRelations(follower_id: id, n: n)
-    return "done"
 end
 
 #diaplay all the fake users
