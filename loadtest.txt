@@ -19,3 +19,11 @@ With Redis and queue
 Homepage (250 clients per second over 1 min)
 Response Time 4634(avg) 135(min) 9197(max)
 Success 4945 Timeout 0
+
+Tweet (250 clients per second over 1 min)
+Response Time 3625(avg) 21(min) 10002(max)
+Success 6073 Timeout 11
+
+Get user timeline (250 clients per second over 1 min) (reached the error threshold)
+Response Time 6272(avg) 26(min) 10004(max)
+Success 2265 Timeout 671
