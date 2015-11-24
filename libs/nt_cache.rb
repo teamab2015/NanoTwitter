@@ -45,10 +45,10 @@ module NT_Cache
   def self.notifyFetchTimeLineFromDB(user_id, limit, with_replies, result)
       key = user_id.nil? ? "homeTimeline" : "userTimeline-#{user_id}"
       return if $redis.exists(key)
-      $redis.multi
-      result.each { |x| $redis.rpush(key, x.to_json) }
-      $redis.expire(key, 60)
-      $redis.exec
+      $redis.multi do |multi|
+          result.each { |x| $redis.rpush(key, x.to_json) }
+          $redis.expire(key, 60)
+      end
   end
 
   def self.notifyTweetAdd(tweet)
@@ -61,13 +61,13 @@ module NT_Cache
       tweet = tweet.merge(user)
       tweet = tweet.to_json
       followers = self.getFollowers(sender_id)
-      $redis.multi
-      $redis.rpop("homeTimeline")
-      $redis.lpushx("homeTimeline", tweet)
-      if followers != nil then
-          followers.each {|follower_id| key="userTimeline-#{follower_id}"; $redis.rpop(key); $redis.lpushx(key, tweet)}
+      $redis.multi do |multi|
+          $redis.rpop("homeTimeline")
+          $redis.lpushx("homeTimeline", tweet)
+          if followers != nil then
+              followers.each {|follower_id| key="userTimeline-#{follower_id}"; $redis.rpop(key); $redis.lpushx(key, tweet)}
+          end
       end
-      $redis.exec
   end
 
 end
