@@ -47,7 +47,7 @@ module NT_Cache
       return if $redis.exists(key)
       $redis.multi do |multi|
           result.each { |x| $redis.rpush(key, x.to_json) }
-          $redis.expire(key, 60)
+          $redis.expire(key, 120)
       end
   end
 
