@@ -73,5 +73,6 @@ module NT_Cache
 end
 
 if ENV['RAILS_ENV'] != 'test' then
+    puts 'NT_Cache.setup'
     NT_Cache.setup
 end
