@@ -209,12 +209,18 @@ get '/test/seed/:n' do
     return "done"
 end
 
-get '/test/tweets/:total_user_count' do
-    total_user_count = params['total_user_count'].to_i
-    prng = Random.new
-    Tweet.add(prng.rand(total_user_count), Faker::Lorem.sentence, nil)
-    return status 200
+get '/test/tweets/:n' do
+    n = params['n'].to_i
+    Seeds.generateTweets(n: n)
+    return "done"
 end
+
+#get '/test/tweets/:total_user_count' do
+#    total_user_count = params['total_user_count'].to_i
+#    prng = Random.new
+#    Tweet.add(prng.rand(total_user_count), Faker::Lorem.sentence, nil)
+#    return status 200
+#end
 
 get '/test/timeline/:total_user_count' do
     total_user_count = params['total_user_count'].to_i
