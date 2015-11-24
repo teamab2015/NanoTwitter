@@ -14,6 +14,8 @@ Get user timeline (250 clients per second over 1 min) (reached the error thresho
 Response Time 8084(avg) 94(min) 10004(max)
 Success 555 Timeout 642
 
-create user (15 clients over 1 min)
-Response Time 26(avg) 15(min) 74(max)
-Success 15 Timeout 0
+With Redis and queue
+
+Homepage (250 clients per second over 1 min)
+Response Time 4634(avg) 135(min) 9197(max)
+Success 4945 Timeout 0
