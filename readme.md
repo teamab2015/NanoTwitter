@@ -16,6 +16,10 @@ This a sinatra application that imitates Twitter. It has following functions:
 6. tag view
 7. reply view  
 
+NanoTwitter cached all the relationship ("followers-#{followee_id}" stores a set of follower_ids), all users ("user-#{user.id}" stores a JSON string of user info), timeline ("homeTimeline" stores the global timeline, "userTimeline-#{user_id}" stores the timeline of a user). The relationship and user cache is loaded at the start of NanoTwitter and updated while any action among follow, unfollow, register happens.The timeline is a first fetched from database and then loaded into redis. When a person tweet, unprocessed tweet string will be added to related timeline list. Since the all timeline cache has an expire timeout of one of two minutes, processed tweet string will show up after that expire timeout. NanoTwitter also use queue to process tweet, because tweet is very costly, as it involves write tag, mention to database, add tag and mention link to original tweet and then write it to database.
+
+For test record, check loadtest.txt
+
 require ruby 2.+  
 Run rake db:reset to clear the database and reseed.  
 The development database comes with a user(email=test@test.com, password=test).  

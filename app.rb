@@ -196,10 +196,34 @@ post %r{/user/(?<id>\d+)/(?<action>(follow|unfollow))$} do
 end
 
 #delete all rows containing test user in relations table, delete all tweets send by test users, delete all test users
-get '/test/reset' do
-    User.destroy_all
+get '/test/reset/all' do
+    Mention.delete_all
+    Notification.delete_all
+    Relation.delete_all
+    Tag_ownership.delete_all
+    Tag.delete_all
+    Tweet.delete_all
+    User.delete_all
     Seeds.generateTestUser
     return "done"
+end
+
+get '/test/reset/testuser' do
+    test_user = User.find_by(name: 'test')
+    test_user = Seeds.generateTestUser if test_user.nil?
+    Tweet.delete_all(sender_id: test_user.id)
+    Relation.delete_all(followee_id: test_user.id)
+    Relation.delete_all(follower_id: test_user.id)
+    return "done"
+end
+
+get '/test/status' do
+    user_count = User.count
+    tweet_count = Tweet.count
+    follow_count = Relation.count
+    test_user = User.find_by(name: 'test')
+    test_user_id = test_user.nil? ? "None" : test_user.id
+    return "user_count: #{user_count}\n follows_count: #{follow_count}\n tweet_count: #{tweet_count}\n testuser.id: #{test_user_id}"
 end
 
 #create n fake users
@@ -211,8 +235,22 @@ end
 
 get '/test/tweets/:n' do
     n = params['n'].to_i
-    Seeds.generateTweets(n: n)
+    test_user = User.find_by(name: 'test')
+    return "testuser does not exist" if test_user.nil?
+    Seeds.generateTweets(sender_id: test_user.id, n: n)
     return "done"
+end
+
+#randomly select n users to follow user “testuser”
+get '/test/follow/:n' do
+    n = params['n'].to_i
+    test_user = User.find_by(name: 'test')
+    Seeds.generateRelations(followee_id: test_user[:id], n: n)
+end
+
+get '/test/tweet/:id' do
+    user_id = params['id'].to_i
+    Tweet.add(user_id, Faker::Lorem.sentence, nil)
 end
 
 #get '/test/tweets/:total_user_count' do
@@ -239,13 +277,6 @@ end
 get '/test/user/:id/tweet' do
     user_id = params['id'].to_i
     Tweet.add(user_id, Faker::Lorem.sentence, nil)
-end
-
-#randomly select n users to follow user “testuser”
-get '/test/follow/:n' do
-    n = params['n'].to_i
-    test_user = User.find_by(name: 'test')
-    Seeds.generateRelations(followee_id: test_user[:id], n: n)
 end
 
 #ask a user with given id to follow n other users

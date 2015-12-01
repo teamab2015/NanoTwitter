@@ -13,7 +13,7 @@ module Seeds
   end
 
   def self.generateUsers(n)
-      (0..n).each do |t|
+      (0..n-1).each do |t|
           user = User.find_or_create_by(email: Faker::Internet.email)
           user.name = Faker::Name.name
           user.username = Faker::Internet.user_name
