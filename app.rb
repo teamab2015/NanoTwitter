@@ -63,7 +63,7 @@ post '/user/register' do
 end
 
 #The home page of user, displaying Top 50 tweets of followed users and himself
-get '/user/:id' do
+get %r{/user/(?<id>\d+)$} do
     @logged_in_user = Authentication.get_logged_in_user(session)
     #if (@logged_in_user.nil?) then redirect to("/logout"); end
     @user = User.find_by(id: params['id'].to_i)
@@ -74,6 +74,11 @@ get '/user/:id' do
     end
     @tweets = Tweet.getTimeline(user_id: @user.id)
     erb :user
+end
+
+get '/user/testuser' do
+    testuser = User.find_by(name: 'test')
+    redirect to("/user/#{testuser.id}")
 end
 
 get '/tags/:id' do
@@ -253,12 +258,12 @@ get '/test/tweet/:id' do
     Tweet.add(user_id, Faker::Lorem.sentence, nil)
 end
 
-#get '/test/tweets/:total_user_count' do
+# get '/test/tweets/:total_user_count' do
 #    total_user_count = params['total_user_count'].to_i
 #    prng = Random.new
 #    Tweet.add(prng.rand(total_user_count), Faker::Lorem.sentence, nil)
 #    return status 200
-#end
+# end
 
 get '/test/timeline/:total_user_count' do
     total_user_count = params['total_user_count'].to_i
@@ -286,44 +291,29 @@ get '/test/users/:id/follow/:n' do
     Seeds.generateRelations(follower_id: id, n: n)
 end
 
-#diaplay all the fake users
-get '/test/users' do
-    users = User.all
-    content_type :json
-    return users.to_json
-end
-
 #return the recent k tweets, where k is a constance
-get '/tweets/recent' do
-    k = 50
+get '/api/v1/tweets/recent' do
     content_type :json
-    Tweet.order(created: :desc).limit(k).to_json
+    Tweet.getTimeline({}).to_json
 end
 
 #return the tweet with given id
-# get '/tweets/:id' do
-#     id = params['id'].to_i
-#     content_type :json
-#     Tweet.find_by(id: id).to_json
-# end
+get '/api/v1/tweets/:id' do
+    id = params['id'].to_i
+    content_type :json
+    Tweet.find_by(id: id).to_json
+end
 
 #TODO use regex to merge '/tweets/:id' and '/users/:id'
 #return the information for user with given id
-get '/users/:id' do
+get '/api/v1/users/:id' do
     id = params['id'].to_i
     content_type :json
     User.find_by(id: id).to_json
 end
 
 #return the recent k tweets of a user of given id
-get '/users/:id/tweets' do
-    id = params['id'].to_i
-    k = 50
-    content_type :json
-    Tweet.where(sender_id: id).order(created: :desc).limit(k).to_json
-end
-
-get '/users/:id/timeline' do
+get '/api/v1/users/:id/tweets' do
     id = params['id'].to_i
     content_type :json
     Tweet.getTimeline(user_id: id).to_json
