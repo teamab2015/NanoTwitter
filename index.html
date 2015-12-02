@@ -1,8 +1,226 @@
+<!DOCTYPE html>
 <html>
-<head>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Nanotwitter by teamab2015</title>
+  </head>
 
-</head>
-<body>
-hello
-</body>
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Nanotwitter</h1>
+          <h2></h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/teamab2015/NanoTwitter/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/teamab2015/NanoTwitter/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/teamab2015/NanoTwitter" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>
+<a id="nanotwitter-teamab" class="anchor" href="#nanotwitter-teamab" aria-hidden="true"><span class="octicon octicon-link"></span></a>NanoTwitter TEAMAB</h1>
+
+<p><a href="https://codeship.com/projects/111898"> <img src="https://codeship.com/projects/202aa180-5fb8-0133-eeaa-4e587625a674/status?branch=master" alt="Codeship Status for cheng9393/NanoTwitter"></a></p>
+
+<p><a href="https://codeclimate.com/github/cheng9393/NanoTwitter"><img src="https://codeclimate.com/github/cheng9393/NanoTwitter/badges/gpa.svg" alt="Code Climate"></a></p>
+
+<p><a href="https://github.com/cheng9393/NanoTwitter">Github https://github.com/cheng9393/NanoTwitter</a></p>
+
+<p><a href="https://teamab.herokuapp.com" title="Demo">Demo https://teamab.herokuapp.com</a>  </p>
+
+<p>This a sinatra application that imitates Twitter. It has following functions:
+1. view timeline
+2. follow/unfollow
+3. notification
+5. tweet with <em>@ mention</em> and <em># tag</em>
+6. tag view
+7. reply view  </p>
+
+<p>NanoTwitter cached all the relationship ("followers-#{followee_id}" stores a set of follower_ids), all users ("user-#{user.id}" stores a JSON string of user info), timeline ("homeTimeline" stores the global timeline, "userTimeline-#{user_id}" stores the timeline of a user). The relationship and user cache is loaded at the start of NanoTwitter and updated while any action among follow, unfollow, register happens.The timeline is a first fetched from database and then loaded into redis. When a person tweet, unprocessed tweet string will be added to related timeline list. Since the all timeline cache has an expire timeout of one of two minutes, processed tweet string will show up after that expire timeout. NanoTwitter also use queue to process tweet, because tweet is very costly, as it involves write tag, mention to database, add tag and mention link to original tweet and then write it to database.</p>
+
+<p>For test record, check loadtest.txt</p>
+
+<p>require ruby 2.+<br>
+Run rake db:reset to clear the database and reseed.<br>
+The development database comes with a user(email=<a href="mailto:test@test.com">test@test.com</a>, password=test).  </p>
+
+<h2>
+<a id="routes" class="anchor" href="#routes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Routes</h2>
+
+<p><code>/</code><br>
+If not logged in, then display top 50 tweets of all users, else redirect to <code>/user/:logged_in_user_id</code></p>
+
+<p><code>/user/:id</code><br>
+The home page of user, displaying Top 50 tweets of followed users and himself</p>
+
+<p><code>/login/:id</code><br>
+log in the user with user_id, may accept requests with password parameter to log in</p>
+
+<p><code>/logout</code><br>
+log out the current user, after logging out redirect to <code>/</code></p>
+
+<p><code>/user/register</code><br>
+display register page</p>
+
+<p><code>/login</code><br>
+display the login page, after logging in redirect to <code>/user/:id</code></p>
+
+<p><code>/test/reset</code><br>
+delete all rows containing test user in relations table, delete all tweets send by test users, delete all test users</p>
+
+<p><code>/test/seed/:n</code><br>
+create n fake users</p>
+
+<p><code>/test/tweets/:n</code><br>
+user “testuser” generates n new fake tweets</p>
+
+<p><code>/test/follow/:n</code><br>
+randomly select n users to follow user “testuser”</p>
+
+<p><code>/test/users</code><br>
+diaplay all the fake users</p>
+
+<h2>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h2>
+
+<p><strong>GET <code>v1/users/:id</code></strong><br>
+Get the user of given id<br>
+result:</p>
+
+<pre><code>{
+    name: text,
+    email: text,
+    id: integer,
+    avatar: text
+}
+</code></pre>
+
+<p><strong>POST <code>v1/users</code></strong><br>
+Create a user<br>
+parameters:</p>
+
+<pre><code>name: text, email: text, id: integer, avatar: text
+</code></pre>
+
+<p><strong>GET <code>v1/tweets/:id</code></strong>
+Get the tweet of given id<br>
+result:</p>
+
+<pre><code>{
+    id: integer,
+    content: text,
+    created: datetime,
+    sender_id: integer,
+    (optional)user: {
+        name: text,
+        email: text,
+        id: integer,
+        avatar: text
+        }
+}
+</code></pre>
+
+<p><strong>POST <code>v1/users/:id/tweets</code></strong><br>
+<em>authentication: true</em><br>
+Create a tweet for a user<br>
+parameters:</p>
+
+<pre><code>id: integer, content: text
+</code></pre>
+
+<p><strong>GET <code>v1/tweets/?sort=[+-{field_name}]&amp;page={#}&amp;per_page={#}&amp;embeded=[{field_name}]</code></strong><br>
+Search for tweets
+result:</p>
+
+<pre><code>[{
+    id: integer,
+    content: text,
+    created: datetime,
+    sender_id: integer,
+    (optional)user: {
+        name: text,
+        email: text,
+        id: integer,
+        avatar: text
+        }
+}]
+</code></pre>
+
+<p><strong>GET <code>v1/users/:id/tweets?sort=[+-{field_name}]&amp;page={#}&amp;per_page={#}&amp;embeded=[{field_name}]</code></strong><br>
+Search the tweets send by a user<br>
+result:</p>
+
+<pre><code>[{
+    id: integer,
+    content: text,
+    created: datetime,
+    sender_id: integer,
+}]
+</code></pre>
+
+<p><strong>GET <code>v1/users/:id/followees?embeded=[{field_name}]</code></strong><br>
+Get the followees of a user<br>
+result:</p>
+
+<pre><code>[{followee_id:integer}]
+</code></pre>
+
+<p>or</p>
+
+<pre><code>[{name: text,
+    email: text,
+    id: integer,
+    avatar: text
+}]
+</code></pre>
+
+<p><strong>GET <code>v1/users/:id/followers?embeded=[{field_name}]</code></strong><br>
+Get the followees of a user<br>
+result:</p>
+
+<pre><code>[{follower_id:integer}]
+</code></pre>
+
+<p>or</p>
+
+<pre><code>[{
+    name: text,
+    email: text,
+    id: integer,
+    avatar: text
+}]
+</code></pre>
+
+<p><strong>POST <code>/users/:id/follow?followee={followee_id}</code></strong><br>
+<em>authentication: true</em><br>
+Create relation that the user(with id) follows another(with followee_id)  </p>
+
+<p><strong>POST <code>/users/:id/unfollow?followee={followee_id}</code></strong><br>
+<em>authentication: true</em><br>
+Delete relation that the user(with id) follows another(with followee_id)</p>
+        </section>
+
+        <footer>
+          Nanotwitter is maintained by <a href="https://github.com/teamab2015">teamab2015</a><br>
+          This page was generated by <a href="https://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
 </html>
