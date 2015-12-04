@@ -76,16 +76,16 @@ class Tweet < ActiveRecord::Base
         wheres.push("reply_index IS NULL") if !with_replies
         wheres = wheres.length == 0 ? "true" : wheres.join(" AND ")
         if user_id.nil? then
-            sql = "SELECT * FROM tweets INNER JOIN users ON tweets.sender_id=users.id WHERE #{wheres} ORDER BY tweets.created DESC LIMIT #{limit}"
+            sql = "SELECT *, tweets.id AS id FROM tweets INNER JOIN users ON tweets.sender_id=users.id WHERE #{wheres} ORDER BY tweets.created DESC LIMIT #{limit}"
         else
-            sql = "SELECT * FROM users, (SELECT DISTINCT tweets.* FROM tweets LEFT JOIN relations ON tweets.sender_id=relations.followee_id WHERE (follower_id=#{user_id} OR sender_id=#{user_id}) AND #{wheres} ORDER BY tweets.created DESC LIMIT #{limit}) as tweets where tweets.sender_id = users.id"
+            sql = "SELECT *, tweets.id AS id FROM users, (SELECT DISTINCT tweets.* FROM tweets LEFT JOIN relations ON tweets.sender_id=relations.followee_id WHERE (follower_id=#{user_id} OR sender_id=#{user_id}) AND #{wheres} ORDER BY tweets.created DESC LIMIT #{limit}) as tweets where tweets.sender_id = users.id"
         end
         result = self.connection.execute(sql)
         return result
     end
 
     def self.getReplies(tweet_id)
-        sql = "SELECT * FROM users, (SELECT tweets.* FROM tweets WHERE reply_index LIKE '#{tweet_id}%' OR id = #{tweet_id} ORDER BY tweets.created ASC) as tweets where tweets.sender_id = users.id"
+        sql = "SELECT *, tweets.id AS id FROM users, (SELECT tweets.* FROM tweets WHERE reply_index LIKE '#{tweet_id}%' OR id = #{tweet_id} ORDER BY tweets.created ASC) as tweets where tweets.sender_id = users.id"
         return self.connection.execute(sql)
     end
 
