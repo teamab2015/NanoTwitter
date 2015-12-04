@@ -3,7 +3,7 @@ require 'json'
 
 module NanoTwitter
     @@base_url = "http://teamab.herokuapp.com"
-    @@base_url = "http://127.0.0.1:4567"
+    #@@base_url = "http://127.0.0.1:4567"
 
     def self.parse(response)
         if response.code == 200
