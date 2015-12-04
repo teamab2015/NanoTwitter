@@ -13,26 +13,22 @@ module Sinatra
                 Tag.delete_all
                 Tweet.delete_all
                 User.delete_all
-                Seeds.generateTestUser
-                return "done"
+                clear_testuser_id
+                return "done testuser_id=#{testuser_id}"
             end
 
             app.get '/test/reset/testuser' do
-                test_user = User.find_by(name: 'test')
-                test_user = Seeds.generateTestUser if test_user.nil?
-                Tweet.delete_all(sender_id: test_user.id)
-                Relation.delete_all(followee_id: test_user.id)
-                Relation.delete_all(follower_id: test_user.id)
-                return "done"
+                Tweet.delete_all(sender_id: testuser_id)
+                Relation.delete_all(followee_id: testuser_id)
+                Relation.delete_all(follower_id: testuser_id)
+                return "done testuser_id=#{testuser_id}"
             end
 
             app.get '/test/status' do
                 user_count = User.count
                 tweet_count = Tweet.count
                 follow_count = Relation.count
-                test_user = User.find_by(name: 'test')
-                test_user_id = test_user.nil? ? "None" : test_user.id
-                return "user_count: #{user_count}\n follows_count: #{follow_count}\n tweet_count: #{tweet_count}\n testuser.id: #{test_user_id}"
+                return "user_count: #{user_count}\n follows_count: #{follow_count}\n tweet_count: #{tweet_count}\n testuser.id: #{testuser_id || 'None'}"
             end
 
             #create n fake users
@@ -44,17 +40,14 @@ module Sinatra
 
             app.get '/test/tweets/:n' do
                 n = params['n'].to_i
-                test_user = User.find_by(name: 'test')
-                return "testuser does not exist" if test_user.nil?
-                Seeds.generateTweets(sender_id: test_user.id, n: n)
+                Seeds.generateTweets(sender_id: testuser_id, n: n)
                 return "done"
             end
 
             #randomly select n users to follow user “testuser”
             app.get '/test/follow/:n' do
                 n = params['n'].to_i
-                test_user = User.find_by(name: 'test')
-                Seeds.generateRelations(followee_id: test_user[:id], n: n)
+                Seeds.generateRelations(followee_id: testuser_id, n: n)
             end
 
             app.get '/test/tweet/:id' do
@@ -89,13 +82,11 @@ module Sinatra
             end
 
             app.get '/user/testuser' do
-                testuser = User.find_by(name: 'test')
-                redirect to("/user/#{testuser.id}")
+                redirect to("/user/#{testuser_id}")
             end
 
             app.post '/user/testuser/tweet' do
-                testuser = User.find_by(name: 'test')
-                Tweet.add(testuser.id, Faker::Lorem.sentence, reply_index)
+                Tweet.add(testuser_id, Faker::Lorem.sentence, reply_index)
             end
         end
 
