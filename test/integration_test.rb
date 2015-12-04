@@ -23,7 +23,7 @@ class MyIntegrationTest < Minitest::Test
       Relation.add({follower_id: user1_id, followee_id: user2_id})
       Tweet.write(user1_id, "test tweet 1", nil, nil)
       Tweet.write(user2_id, "test tweet 2", nil, nil)
-      get "/users/#{user1_id}/timeline"
+      get "/api/v1/users/#{user1_id}/tweets"
       assert last_response.ok?
       data = JSON.parse(last_response.body)
       assert_equal 2, data.length

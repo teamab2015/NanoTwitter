@@ -76,11 +76,6 @@ get %r{/user/(?<id>\d+)$} do
     erb :user
 end
 
-get '/user/testuser' do
-    testuser = User.find_by(name: 'test')
-    redirect to("/user/#{testuser.id}")
-end
-
 get '/tags/:id' do
     id = params['id'].to_i
     @tag = Tag.find_by(id: id)
@@ -258,13 +253,6 @@ get '/test/tweet/:id' do
     Tweet.add(user_id, Faker::Lorem.sentence, nil)
 end
 
-# get '/test/tweets/:total_user_count' do
-#    total_user_count = params['total_user_count'].to_i
-#    prng = Random.new
-#    Tweet.add(prng.rand(total_user_count), Faker::Lorem.sentence, nil)
-#    return status 200
-# end
-
 get '/test/timeline/:total_user_count' do
     total_user_count = params['total_user_count'].to_i
     prng = Random.new
@@ -291,6 +279,16 @@ get '/test/users/:id/follow/:n' do
     Seeds.generateRelations(follower_id: id, n: n)
 end
 
+get '/user/testuser' do
+    testuser = User.find_by(name: 'test')
+    redirect to("/user/#{testuser.id}")
+end
+
+post '/user/testuser/tweet' do
+    testuser = User.find_by(name: 'test')
+    Tweet.add(testuser.id, Faker::Lorem.sentence, reply_index)
+end
+
 #return the recent k tweets, where k is a constance
 get '/api/v1/tweets/recent' do
     content_type :json
@@ -304,7 +302,6 @@ get '/api/v1/tweets/:id' do
     Tweet.find_by(id: id).to_json
 end
 
-#TODO use regex to merge '/tweets/:id' and '/users/:id'
 #return the information for user with given id
 get '/api/v1/users/:id' do
     id = params['id'].to_i
