@@ -178,4 +178,5 @@ Delete relation that the user(with id) follows another(with followee_id)
 
 
 ![ScreenShot](http://teamab2015.github.io/NanoTwitter/images/Screen%20Shot%202015-12-07%20at%203.30.28%20AM.png)
+![Screenshot](https://teamab.github.io/images/test.png)
 
