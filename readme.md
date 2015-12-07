@@ -176,5 +176,8 @@ Create relation that the user(with id) follows another(with followee_id)
 *authentication: true*  
 Delete relation that the user(with id) follows another(with followee_id)
 
+Screenshots and Quick Guide to TeamAB's NanoTwitter!
 
+When a user is not logged on, they will see the 50 most recent tweets from any user.
 ![ScreenShot](https://github.com/teamab2015/NanoTwitter/blob/master/images/Screen%20Shot%202015-12-07%20at%203.30.28%20AM.png)
+
