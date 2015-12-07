@@ -179,6 +179,3 @@ Delete relation that the user(with id) follows another(with followee_id)
 
 ![ScreenShot](http://teamab2015.github.io/NanoTwitter/images/Screen%20Shot%202015-12-07%20at%203.30.28%20AM.png)
 
-Another image of the reigster page when the user is attempting to register
-![ScreenShot2](http://teamab2015.github.io/NanoTwitter/images/Screen%20Shot%202015-12-07%20at%2011.50.05%20AM.png)
-
