@@ -176,7 +176,5 @@ Create relation that the user(with id) follows another(with followee_id)
 *authentication: true*  
 Delete relation that the user(with id) follows another(with followee_id)
 
-Screenshots and Quick Guide to TeamAB's NanoTwitter!
-
 
 
