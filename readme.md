@@ -177,4 +177,6 @@ Create relation that the user(with id) follows another(with followee_id)
 Delete relation that the user(with id) follows another(with followee_id)
 
 
+![ScreenShot](https://github.com/teamab2015/NanoTwitter/blob/gh-pages/images/Screen%20Shot%202015-12-07%20at%203.30.28%20AM.png)
+
 
