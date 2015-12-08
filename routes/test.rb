@@ -41,7 +41,7 @@ module Sinatra
             app.get '/test/tweets/:n' do
                 n = params['n'].to_i
                 Seeds.generateTweets(sender_id: testuser_id, n: n)
-                return "done"
+                return "done testuser_id=#{testuser_id}"
             end
 
             #randomly select n users to follow user “testuser”
