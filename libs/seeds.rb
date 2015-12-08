@@ -23,10 +23,14 @@ module Seeds
       end
   end
 
-  def self.generateTweets(sender_id: nil, n: 20)
+  def self.generateTweets(sender_id: nil, n: 20, useRedis: false)
       if (sender_id.is_a?(Integer) && n.is_a?(Integer)) then
           Faker::Lorem.sentences(n).each do |sentence|
-              Tweet.create(sender_id: sender_id, content: sentence, created: DateTime.now - 7 + Rational(rand(0..DAY*7), DAY))
+              if useRedis then
+                  Tweet.add(sender_id, sentence, nil)
+              else
+                  Tweet.create(sender_id: sender_id, content: sentence, created: DateTime.now - 7 + Rational(rand(0..DAY*7), DAY))
+              end
           end
       end
       if (sender_id.nil? && n.is_a?(Integer)) then

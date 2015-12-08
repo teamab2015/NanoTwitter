@@ -14,14 +14,18 @@ module Sinatra
                 Tweet.delete_all
                 User.delete_all
                 clear_testuser_id
-                return "done testuser_id=#{testuser_id}"
+                id = testuser_id()
+                NT_Cache.setup
+                return "done testuser_id=#{id}"
             end
 
             app.get '/test/reset/testuser' do
                 Tweet.delete_all(sender_id: testuser_id)
                 Relation.delete_all(followee_id: testuser_id)
                 Relation.delete_all(follower_id: testuser_id)
-                return "done testuser_id=#{testuser_id}"
+                id = testuser_id()
+                NT_Cache.setup
+                return "done testuser_id=#{id}"
             end
 
             app.get '/test/status' do
@@ -35,12 +39,13 @@ module Sinatra
             app.get '/test/seed/:n' do
                 n = params['n'].to_i
                 Seeds.generateUsers(n)
+                NT_Cache.setup
                 return "done"
             end
 
             app.get '/test/tweets/:n' do
                 n = params['n'].to_i
-                Seeds.generateTweets(sender_id: testuser_id, n: n)
+                Seeds.generateTweets(sender_id: testuser_id, n: n, useRedis: true)
                 return "done testuser_id=#{testuser_id}"
             end
 
@@ -48,6 +53,7 @@ module Sinatra
             app.get '/test/follow/:n' do
                 n = params['n'].to_i
                 Seeds.generateRelations(followee_id: testuser_id, n: n)
+                NT_Cache.setup
                 return "done"
             end
 
