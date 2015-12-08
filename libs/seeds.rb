@@ -20,14 +20,16 @@ module Seeds
   end
 
   def self.generateUsers(n)
-      (0..n-1).each do |t|
-          user = User.find_or_create_by(email: Faker::Internet.email)
-          user.name = Faker::Name.name
-          user.username = Faker::Internet.user_name
-          user.password = Faker::Internet.password
-          user.avatar = Faker::Avatar.image
-          user.save
-          NT_Cache.addUser(user) if @@useRedis
+      l = (0..n-1).map{|x| {name: Faker::Name.name,
+                    email: Faker::Internet.email,
+                    username: Faker::Internet.user_name,
+                    password: Faker::Internet.password,
+                    avatar: Faker::Avatar.image} }
+      users = User.create(l)
+      if @@useRedis then
+          $redis.pipelined {
+              users.each{ |u| NT_Cache.addUser(u) }
+          }
       end
   end
 
@@ -54,16 +56,16 @@ module Seeds
           NT_Cache.addFollower(followee_id, follower_id) if @@useRedis
       end
       if (followee_id.is_a?(Integer) && n.is_a?(Integer)) then
-          User.where("id != #{followee_id}").order("RANDOM()").limit(n).each do |user|
-              Relation.find_or_create_by(followee_id: followee_id, follower_id: user[:id])
-              NT_Cache.addFollower(followee_id, user[:id]) if @@useRedis
-          end
+          users = User.where("id != #{followee_id}").order("RANDOM()").limit(n)
+          l = users.map{|user| {followee_id: followee_id, follower_id: user[:id]}}
+          Relation.create(l)
+          $redis.pipelined{users.each{|user| NT_Cache.addFollower(followee_id, user[:id])}} if @@useRedis
       end
       if (follower_id.is_a?(Integer) && n.is_a?(Integer)) then
-          User.where("id != #{follower_id}").order("RANDOM()").limit(n).each do |user|
-              Relation.find_or_create_by(followee_id: user[:id], follower_id: follower_id)
-              NT_Cache.addFollower(user[:id], follower_id) if @@useRedis
-          end
+          users = User.where("id != #{follower_id}").order("RANDOM()").limit(n)
+          l = users.map{|user| {followee_id: user[:id], follower_id: follower_id}}
+          Relation.create(l)
+          $redis.pipelined{users.each{|user| NT_Cache.addFollower(user[:id], follower_id)}} if @@useRedis
       end
   end
 
