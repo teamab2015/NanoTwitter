@@ -4,10 +4,12 @@ require 'date'
 
 require 'sinatra'
 require 'sinatra/activerecord'
-require './config/environments'
-require './config/initializers/redis.rb'
 require 'resque'
 require 'newrelic_rpm'
+require './config/environments'
+require './config/initializers/redis.rb'
+require './config/initializers/resque-pool.rb'
+
 
 Dir["./models/*.rb"].each {|file| require file }
 Dir["./routes/*.rb"].each {|file| require file }

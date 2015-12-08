@@ -3,8 +3,11 @@ require "json"
 module NT_Cache
 
   def self.setup()
-      Relation.all.each {|x| self.addFollower(x.followee_id, x.follower_id)}
-      User.all.each {|x| self.addUser(x); self.addFollower(x.id, x.id)}
+      $redis.flushall
+      $redis.pipelined {
+          Relation.all.each {|x| self.addFollower(x.followee_id, x.follower_id)}
+          User.all.each {|x| self.addUser(x); self.addFollower(x.id, x.id)}
+      }
   end
 
   def self.addUser(user)
