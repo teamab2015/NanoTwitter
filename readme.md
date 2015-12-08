@@ -7,6 +7,8 @@ Dec 8, 2015
 
 [![Code Climate](https://codeclimate.com/github/cheng9393/NanoTwitter/badges/gpa.svg)](https://codeclimate.com/github/cheng9393/NanoTwitter)
 
+[Profile http://teamab2015.github.io/NanoTwitter](http://teamab2015.github.io/NanoTwitter "Profile")  
+
 [Github https://github.com/teamab2015/NanoTwitter](https://github.com/teamab2015/NanoTwitter)
 
 [Demo https://teamab.herokuapp.com](https://teamab.herokuapp.com "Demo")  
