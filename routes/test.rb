@@ -6,6 +6,7 @@ module Sinatra
         def self.registered(app)
             #delete all rows containing test user in relations table, delete all tweets send by test users, delete all test users
             app.get '/test/reset/all' do
+                $redis.flushall
                 Mention.delete_all
                 Notification.delete_all
                 Relation.delete_all
@@ -15,16 +16,15 @@ module Sinatra
                 User.delete_all
                 clear_testuser_id
                 id = testuser_id()
-                NT_Cache.setup
                 return "done testuser_id=#{id}"
             end
 
             app.get '/test/reset/testuser' do
+                $redis.flushall
                 Tweet.delete_all(sender_id: testuser_id)
                 Relation.delete_all(followee_id: testuser_id)
                 Relation.delete_all(follower_id: testuser_id)
                 id = testuser_id()
-                NT_Cache.setup
                 return "done testuser_id=#{id}"
             end
 
@@ -38,8 +38,7 @@ module Sinatra
             #create n fake users
             app.get '/test/seed/:n' do
                 n = params['n'].to_i
-                Seeds.generateUsers(n)
-                NT_Cache.setup
+                Seeds.useRedis(true).generateUsers(n)
                 return "done"
             end
 
@@ -52,8 +51,7 @@ module Sinatra
             #randomly select n users to follow user “testuser”
             app.get '/test/follow/:n' do
                 n = params['n'].to_i
-                Seeds.generateRelations(followee_id: testuser_id, n: n)
-                NT_Cache.setup
+                Seeds.useRedis(true).generateRelations(followee_id: testuser_id, n: n)
                 return "done"
             end
 

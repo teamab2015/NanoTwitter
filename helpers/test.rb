@@ -8,7 +8,7 @@ module Sinatra
             return testuser_id if testuser_id != nil
             testuser = User.find_by(name: 'test')
             testuser_id = testuser.id if !testuser.nil?
-            testuser_id ||= Seeds.generateTestUser
+            testuser_id ||= Seeds.useRedis(true).generateTestUser
             $redis.set("testuser_id", testuser_id.to_s)
             return testuser_id
         end
