@@ -48,11 +48,24 @@ module Sinatra
             app.get '/test/follow/:n' do
                 n = params['n'].to_i
                 Seeds.generateRelations(followee_id: testuser_id, n: n)
+                return "done"
             end
+
+            app.get '/user/testuser' do
+                redirect to("/user/#{testuser_id}")
+            end
+
+            app.post '/user/testuser/tweet' do
+                Tweet.add(testuser_id, Faker::Lorem.sentence, nil)
+            end
+
+            ##################################################################
+            #additional test interface
 
             app.get '/test/tweet/:id' do
                 user_id = params['id'].to_i
                 Tweet.add(user_id, Faker::Lorem.sentence, nil)
+                return "done"
             end
 
             app.get '/test/timeline/:total_user_count' do
@@ -72,6 +85,7 @@ module Sinatra
             app.get '/test/user/:id/tweet' do
                 user_id = params['id'].to_i
                 Tweet.add(user_id, Faker::Lorem.sentence, nil)
+                return "done"
             end
 
             #ask a user with given id to follow n other users
@@ -79,15 +93,9 @@ module Sinatra
                 id = params['id'].to_i
                 n = params['n'].to_i
                 Seeds.generateRelations(follower_id: id, n: n)
+                return "done"
             end
 
-            app.get '/user/testuser' do
-                redirect to("/user/#{testuser_id}")
-            end
-
-            app.post '/user/testuser/tweet' do
-                Tweet.add(testuser_id, Faker::Lorem.sentence, reply_index)
-            end
         end
 
       end

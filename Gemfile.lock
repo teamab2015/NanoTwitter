@@ -39,6 +39,9 @@ GEM
       redis-namespace (~> 1.0)
       sinatra (>= 0.9.2)
       vegas (~> 0.1.2)
+    resque-pool (0.6.0)
+      rake
+      resque (~> 1.22)
     sinatra (1.4.6)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -68,6 +71,7 @@ DEPENDENCIES
   rake
   redis
   resque (~> 1.22.0)
+  resque-pool
   sinatra
   sinatra-activerecord
   sqlite3
