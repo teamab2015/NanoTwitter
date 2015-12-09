@@ -33,7 +33,7 @@ NanoTwitter cached all the relationship ("followers-#{followee_id}" stores a set
 Result of loader.io test
 ------
 
-| Object & Condition                          	| Average 	| Min 	| Max   	| Success 	| Timeout 	|
+| Object & Condition (maintain client load 250) | Average 	| Min 	| Max   	| Success 	| Timeout 	|
 |---------------------------------------------	|---------	|-----	|-------	|---------	|---------	|
 | testuser tweet u = 100, t = 500, f = 30     	| 1437    	| 24  	| 4333  	| 5054    	| 0       	|
 | testuser home u = 100, t = 500, f = 30      	| 2940    	| 38  	| 9110  	| 2326    	| 0       	|

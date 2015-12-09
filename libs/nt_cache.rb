@@ -13,6 +13,7 @@ module NT_Cache
   def self.addUser(user)
       key = "user-#{user.id}"
       $redis.set(key, user.to_json)
+      self.addFollower(user.id, user.id)
   end
 
   def self.getUser(user_id)
@@ -68,10 +69,12 @@ module NT_Cache
       tweet = tweet.to_json
       followers = self.getFollowers(sender_id)
       $redis.pipelined {
-          $redis.rpop("homeTimeline")
-          $redis.lpushx("homeTimeline", tweet)
+          $redis.lpush("homeTimeline", tweet)
+          $redis.ltrim("homeTimeline", -50, -1);
           if followers != nil then
-              followers.each {|follower_id| key="userTimeline-#{follower_id}"; $redis.rpop(key); $redis.lpushx(key, tweet)}
+              followers.each {|follower_id| key="userTimeline-#{follower_id}";
+                                            $redis.lpush(key, tweet);
+                                            $redis.ltrim(key, -50, -1);}
           end
       }
   end
